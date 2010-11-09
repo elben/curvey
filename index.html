@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Spline Editor</title>
+    <title>Curvey - A b-spline demo that doesn't suck (as much)</title>
     <link type="text/css" rel="stylesheet" href="default.css"/>
     <script type="text/javascript" src="protovis-d3.2.js"></script>
     <style type="text/css">
@@ -23,7 +23,7 @@
 var w = 896,
     h = 586,
     i = 3,
-    interpolate = "cardinal",
+    interpolate = "linear",
     segmented = false;
 
 var points = new Array();
@@ -52,7 +52,25 @@ vis.add(pv.Dot)
     .event("dragstart", function() (i = this.index, this))
     .event("drag", vis);
 
+vis.add(pv.Line)
+    .data(function() points)
+    .left(function(d) d.x)
+    .top(function(d) d.y)
+    .interpolate(function() interpolate)
+    .segmented(function() segmented)
+    .strokeStyle(pv.Colors.category10().by(pv.index))
+    .tension(0.5)
+    .lineWidth(2);
+    
     </script>
+
+      <div class="header">
+        <select onchange="interpolate = this.value; vis.render();">
+          <option value="linear" selected>linear</option>
+          <option value="basis">b-splines</option>
+        </select>
+      </div>
+
     </div>
   </body>
 </html>
