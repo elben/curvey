@@ -65,10 +65,14 @@ vis.add(pv.Line)
     </script>
 
       <div class="header">
+        <input id="knot_vector" type="textbox" value="0,1,2,3,4">
         <select onchange="interpolate = this.value; vis.render();">
           <option value="linear" selected>linear</option>
           <option value="basis">b-splines</option>
         </select>
+        <input id="segmented" type="checkbox" onchange="segmented =
+              this.checked; vis.render()">
+        <label for="segmented">Show segments</label>
       </div>
 
     </div>
