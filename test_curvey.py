@@ -3,14 +3,24 @@ import unittest
 
 class TestBSpline(unittest.TestCase):
     def setUp(self):
-        cp1 = ControlPoint(Point(1, 3), knots=[0,0,0])
-        cp2 = ControlPoint(Point(2, 4), knots=[0,0,1])
-        cp3 = ControlPoint(Point(6, 5), knots=[0,1,3])
-        cp4 = ControlPoint(Point(5, 1), knots=[1,3,4])
-        cp5 = ControlPoint(Point(2, 1), knots=[3,4,4])
-        cp6 = ControlPoint(Point(0, 2), knots=[4,4,4])
-        self.bs1 = BSpline(points=[cp1, cp2, cp3, cp4, cp5, cp6],
-                knotvec=[0,0,0,1,3,4,4,4])
+        self.cp1 = ControlPoint(Point(1, 3), knots=[0,0,0])
+        self.cp2 = ControlPoint(Point(2, 4), knots=[0,0,1])
+        self.cp3 = ControlPoint(Point(6, 5), knots=[0,1,3])
+        self.cp4 = ControlPoint(Point(5, 1), knots=[1,3,4])
+        self.cp5 = ControlPoint(Point(2, 1), knots=[3,4,4])
+        self.cp6 = ControlPoint(Point(0, 2), knots=[4,4,4])
+        self.bs1 = BSpline(points=[self.cp1, self.cp2, self.cp3, self.cp4,
+            self.cp5, self.cp6], knotvec=[0,0,0,1,3,4,4,4])
+
+    def test_polar_to_control_point(self):
+        self.assertEqual(self.bs1._polar_to_control_point(KnotVector([0,0,0])),
+            self.cp1)
+        self.assertEqual(self.bs1._polar_to_control_point(KnotVector([0,1,3])),
+            self.cp3)
+        self.assertEqual(self.bs1._polar_to_control_point(KnotVector([4,4,4])),
+            self.cp6)
+        self.assertEqual(self.bs1._polar_to_control_point(KnotVector([100,4,4])),
+            None)
 
     def test_insert(self):
         # This follows the example on Figure 13 of
@@ -50,7 +60,7 @@ class TestControlPoint(unittest.TestCase):
 
         # a = 0, b = 1, c = 0.5
         # ((b-a) cp1 + (c-a) cp2) / (c-a)
-        ControlPoint.interpolate(cp1, cp2, cp3)
+        cp3.interpolate(cp1, cp2)
         self.assertEqual(cp3.x, 3.5)
         self.assertEqual(cp3.y, 2.5)
 
@@ -62,7 +72,7 @@ class TestControlPoint(unittest.TestCase):
 
         # a = 0, b = 1, c = 0.5
         # ((b-a) cp1 + (c-a) cp2) / (c-a)
-        ControlPoint.interpolate(cp1, cp2, cp3)
+        cp3.interpolate(cp1, cp2)
         self.assertEqual(cp3.x, 8.0/3)
         self.assertEqual(cp3.y, 2.0)
 
@@ -155,6 +165,26 @@ class TestKnotVector(unittest.TestCase):
         for p1, p2 in zip(pts, kv3pts):
             self.assertEqual(p1, p2)
 
+    def test_difference(self):
+        kv1 = KnotVector([0,0,0])
+        kv2 = KnotVector([0,0,0])
+        self.assertEqual(KnotVector.difference(kv1, kv2), None)
+
+        kv1 = KnotVector([0,0,1])
+        kv2 = KnotVector([0,0,0])
+        self.assertEqual(KnotVector.difference(kv1, kv2), (2, 0))
+
+        kv1 = KnotVector([0,4,4])
+        kv2 = KnotVector([0,4,5])
+        self.assertEqual(KnotVector.difference(kv1, kv2), (1, 2))
+
+        kv1 = KnotVector([0,1,2])
+        kv2 = KnotVector([0,2,2])
+        self.assertEqual(KnotVector.difference(kv1, kv2), (1, 1))
+
+        kv1 = KnotVector([1,4,8])
+        kv2 = KnotVector([1,8,9])
+        self.assertEqual(KnotVector.difference(kv1, kv2), (1, 2))
 
 if __name__ == '__main__':
     unittest.main()
