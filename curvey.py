@@ -2,12 +2,17 @@
 
 import sys
 
+DEBUG = False
+
+def printar(headline, points):
+    for p in points:
+        print p
+
 class BSpline(object):
     def __init__(self, points=None, knotvec=None):
         # points isn't in any particular order.
         # A list of (x, y) tuples.
         self.points = points if points else []
-        self.old_points = points if points else []
 
         if type(knotvec) == type([]):
             self.knotvec = KnotVector(knotvec)
@@ -17,13 +22,10 @@ class BSpline(object):
             self.knotvec = KnotVector()
 
     def insert(self, knot):
-        old_vec = self.knotvec.old_vec
-        self.old_points = self.old_points # TODO
-
-        # TODO below is wrong. we need to go get the 
         old_polars = self.knotvec.control_points()
         self.knotvec.insert(knot)
         new_polars = self.knotvec.control_points()
+        new_points = []
 
         merged_polars = []
         merged_polars.extend(old_polars)
@@ -32,22 +34,19 @@ class BSpline(object):
                 merged_polars.append(polar)
         merged_polars.sort()
 
-        print 'Old Polars'
-        for p in old_polars:
-            print p
-
-        print 'New Polars'
-        for p in new_polars:
-            print p
-
-        print 'Merged Polars'
-        for p in merged_polars:
-            print p
+        if DEBUG:
+            printar('Old Polars', old_polars)
+            printar('New Polars', new_polars)
+            printar('Merge Polars', merged_polars)
 
         for i, polar in enumerate(merged_polars):
-            if polar in old_polars: # TODO fix this wrongness
+            if polar in old_polars:
                 # Control point already exists, so we don't need to recalculate
                 # its x, y.
+
+                # If this point is not deleted by the insertion, add it.
+                if polar in new_polars:
+                    new_points.append(self._polar_to_control_point(polar))
                 continue
 
             # New control point. Interpolate between the control points next to
@@ -58,7 +57,13 @@ class BSpline(object):
             middle = ControlPoint(knots=merged_polars[i])
             middle.interpolate(left, right)
 
-            self.points.append(middle)            
+            new_points.append(middle)
+
+        new_points.sort()
+        self.points = new_points
+
+        if DEBUG:
+            printar("Points after insertion:", self.points)
 
     def _insert_control_point(self, cp):
         pass
@@ -99,11 +104,15 @@ class ControlPoint(object):
     def polar(self):
         return self._knots
 
-    def x(self):
-        return self.p.x
+    def x(self, x=None):
+        if not x:
+            return self.p.x
+        self.p.x = x
 
-    def y(self):
-        return self.p.y
+    def y(self, y=None):
+        if not y:
+            return self.p.y
+        self.p.y = y
 
     def __cmp__(self, other):
         """
@@ -132,8 +141,8 @@ class ControlPoint(object):
         b = right.polar().at(righti)
         c = self.polar().at(middlei)
 
-        self.x = float((b-c)*left.x() + (c-a)*right.x())/(b-a)
-        self.y = float((b-c)*left.y() + (c-a)*right.y())/(b-a)
+        self.p.x = float((b-c)*left.x() + (c-a)*right.x())/(b-a)
+        self.p.y = float((b-c)*left.y() + (c-a)*right.y())/(b-a)
         return a, b, c
 
 
@@ -141,9 +150,6 @@ class KnotVector(object):
     def __init__(self, vec=None, degree=3):
         self.degree = degree
         self.vec = vec if vec else []
-
-        # We also save the old vector for insertions.
-        self.old_vec = self.vec[:]
 
     @staticmethod
     def similar(*args):
@@ -223,7 +229,6 @@ class KnotVector(object):
     def insert(self, knot):
         # Inserts knot into the knot vector at the proper place.
 
-        self.old_vec = self.vec[:]
         for i, v in enumerate(self.vec):
             if v >= knot:
                 self.vec.insert(i, knot)
@@ -244,7 +249,6 @@ class KnotVector(object):
         kv = KnotVector()
         kv.degree = self.degree
         kv.vec = self.vec[:]
-        kv.old_vec = self.old_vec[:]
         return kv
 
     def __cmp__(self, other):

@@ -1,6 +1,9 @@
 from curvey import *
 import unittest
 
+def float_equals(f1, f2, epsilon=.0001):
+    return abs(f1-f2) < epsilon
+
 class TestBSpline(unittest.TestCase):
     def setUp(self):
         self.cp1 = ControlPoint(Point(1, 3), knots=[0,0,0])
@@ -23,13 +26,45 @@ class TestBSpline(unittest.TestCase):
             None)
 
     def test_insert(self):
-        # This follows the example on Figure 13 of
-        # "An Introduction to B-Spline Curves"
-        knot = 2
-        self.bs1.insert(knot)
+        # This follows the example on Figure 12 and 13 of
+        # "An Introduction to B-Spline Curves". This tests essentially the de
+        # Boor algorithm. We insert knot=2 twice to get P(2,2,2).
 
+        self.bs1.insert(knot=2)
         new_knotvec = KnotVector([0,0,0,1,2,3,4,4,4])
         self.assertEqual(self.bs1.knotvec, new_knotvec)
+        # assert new points added to right place and old points removed
+        self.assertEqual(self.bs1.points[2].polar(), KnotVector([0,1,2]))
+        self.assertEqual(self.bs1.points[3].polar(), KnotVector([1,2,3]))
+        self.assertEqual(self.bs1.points[4].polar(), KnotVector([2,3,4]))
+        self.assertEqual(self.bs1.points[5].polar(), KnotVector([3,4,4]))
+        # assert new points have the right x, y.
+        self.assertEqual(self.bs1.points[2].x(), 14.0/3)
+        self.assertEqual(self.bs1.points[2].y(), 14.0/3)
+        self.assertEqual(self.bs1.points[3].x(), 11.0/2)
+        self.assertEqual(self.bs1.points[3].y(), 3)
+        self.assertEqual(self.bs1.points[4].x(), 4)
+        self.assertEqual(self.bs1.points[4].y(), 1)
+
+        self.bs1.insert(knot=2)
+        self.bs1.insert(knot=2)
+        new_knotvec = KnotVector([0,0,0,1,2,2,2,3,4,4,4])
+        self.assertEqual(self.bs1.knotvec, new_knotvec)
+        # assert new points added to right place and old points removed
+        self.assertEqual(self.bs1.points[2].polar(), KnotVector([0,1,2]))
+        self.assertEqual(self.bs1.points[3].polar(), KnotVector([1,2,2]))
+        self.assertEqual(self.bs1.points[4].polar(), KnotVector([2,2,2]))
+        self.assertEqual(self.bs1.points[5].polar(), KnotVector([2,2,3]))
+        self.assertEqual(self.bs1.points[6].polar(), KnotVector([2,3,4]))
+        # assert new points have the right x, y.
+        self.assertTrue(float_equals(self.bs1.points[3].x(), 47.0/9))
+        self.assertTrue(float_equals(self.bs1.points[3].y(), 32.0/9))
+        self.assertTrue(float_equals(self.bs1.points[4].x(), 46.0/9))
+        self.assertTrue(float_equals(self.bs1.points[4].y(), 53.0/18))
+        self.assertTrue(float_equals(self.bs1.points[5].x(), 5))
+        self.assertTrue(float_equals(self.bs1.points[5].y(), 7.0/3))
+        self.assertTrue(float_equals(self.bs1.points[6].x(), 4))
+        self.assertTrue(float_equals(self.bs1.points[6].y(), 1))
 
 class TestControlPoint(unittest.TestCase):
     def setUp(self):
@@ -61,8 +96,8 @@ class TestControlPoint(unittest.TestCase):
         # a = 0, b = 1, c = 0.5
         # ((b-a) cp1 + (c-a) cp2) / (c-a)
         cp3.interpolate(cp1, cp2)
-        self.assertEqual(cp3.x, 3.5)
-        self.assertEqual(cp3.y, 2.5)
+        self.assertEqual(cp3.x(), 3.5)
+        self.assertEqual(cp3.y(), 2.5)
 
         ############################
 
@@ -70,25 +105,23 @@ class TestControlPoint(unittest.TestCase):
         cp2 = ControlPoint(Point(6, 4), knots=[0,4,1])
         cp3 = ControlPoint(Point(0, 0), knots=[2,1,0])
 
-        # a = 0, b = 1, c = 0.5
+        # a = 1, b = 4, c = 2
         # ((b-a) cp1 + (c-a) cp2) / (c-a)
         cp3.interpolate(cp1, cp2)
-        self.assertEqual(cp3.x, 8.0/3)
-        self.assertEqual(cp3.y, 2.0)
+        self.assertEqual(cp3.x(), 8.0/3)
+        self.assertEqual(cp3.y(), 2.0)
 
         ############################
 
-        """
         cp1 = ControlPoint(Point(1, 1), knots=[0,4,4])
         cp2 = ControlPoint(Point(6, 4), knots=[0,4,8])
-        cp3 = ControlPoint(Point(0, 0), knots=[0,1,2])
+        cp3 = ControlPoint(Point(0, 0), knots=[0,5,4])
 
-        # a = 0, b = 1, c = 0.5
+        # a = 4, b = 8, c = 5
         # ((b-a) cp1 + (c-a) cp2) / (c-a)
         cp3.interpolate(cp1, cp2)
-        self.assertEqual(cp3.x, 8.0/3)
-        self.assertEqual(cp3.y, 2.0)
-        """
+        self.assertEqual(cp3.x(), 3.0/4 * cp1.x() + 1.0/4 * cp2.x())
+        self.assertEqual(cp3.y(), 3.0/4 * cp1.y() + 1.0/4 * cp2.y())
 
         ############################
         # TODO test when there is more than one differing knot in the knot
