@@ -51,9 +51,12 @@ class BSpline(object):
         """
 
 class ControlPoint(object):
-    def __init__(self, x=0, y=0, knots=None):
-        self.x = x
-        self.y = y
+    def __init__(self, point=None, x=None, y=None, knots=None):
+        self.p = point if point else Point()
+        if x:
+            self.p.x = x
+        if y:
+            self.p.y = y
         
         if type(knots) == type([]):
             self.knots = KnotVector(knots)
@@ -61,6 +64,12 @@ class ControlPoint(object):
             self.knots = knots.copy()
         else:
             self.knots = KnotVector()
+
+    def x(self):
+        return self.p.x
+
+    def y(self):
+        return self.p.y
 
     def __cmp__(self, other):
         """
@@ -100,8 +109,8 @@ class ControlPoint(object):
                 continue
 
             # The knots differ, so interpolate.
-            middle.x = float((b-c)*left.x + (c-a)*right.x)/(b-a)
-            middle.y = float((b-c)*left.y + (c-a)*right.y)/(b-a)
+            middle.x = float((b-c)*left.x() + (c-a)*right.x())/(b-a)
+            middle.y = float((b-c)*left.y() + (c-a)*right.y())/(b-a)
             return a, b, c
 
 class KnotVector(object):

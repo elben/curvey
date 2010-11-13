@@ -3,12 +3,12 @@ import unittest
 
 class TestBSpline(unittest.TestCase):
     def setUp(self):
-        cp1 = ControlPoint(x=1, y=3, knots=[0,0,0])
-        cp2 = ControlPoint(x=2, y=4, knots=[0,0,1])
-        cp3 = ControlPoint(x=6, y=5, knots=[0,1,3])
-        cp4 = ControlPoint(x=5, y=1, knots=[1,3,4])
-        cp5 = ControlPoint(x=2, y=1, knots=[3,4,4])
-        cp6 = ControlPoint(x=0, y=2, knots=[4,4,4])
+        cp1 = ControlPoint(Point(1, 3), knots=[0,0,0])
+        cp2 = ControlPoint(Point(2, 4), knots=[0,0,1])
+        cp3 = ControlPoint(Point(6, 5), knots=[0,1,3])
+        cp4 = ControlPoint(Point(5, 1), knots=[1,3,4])
+        cp5 = ControlPoint(Point(2, 1), knots=[3,4,4])
+        cp6 = ControlPoint(Point(0, 2), knots=[4,4,4])
         self.bs1 = BSpline(points=[cp1, cp2, cp3, cp4, cp5, cp6],
                 knotvec=[0,0,0,1,3,4,4,4])
 
@@ -44,9 +44,9 @@ class TestControlPoint(unittest.TestCase):
         self.assertTrue(cp1 > cp2)
     
     def test_interpolate(self):
-        cp1 = ControlPoint(x=1, y=1, knots=[0,0,0])
-        cp2 = ControlPoint(x=6, y=4, knots=[0,0,1])
-        cp3 = ControlPoint(x=0, y=0, knots=[0,0,0.5])
+        cp1 = ControlPoint(Point(1, 1), knots=[0,0,0])
+        cp2 = ControlPoint(Point(6, 4), knots=[0,0,1])
+        cp3 = ControlPoint(Point(0, 0), knots=[0,0,0.5])
 
         # a = 0, b = 1, c = 0.5
         # ((b-a) cp1 + (c-a) cp2) / (c-a)
@@ -56,9 +56,9 @@ class TestControlPoint(unittest.TestCase):
 
         ############################
 
-        cp1 = ControlPoint(x=1, y=1, knots=[1,1,0])
-        cp2 = ControlPoint(x=6, y=4, knots=[0,4,1])
-        cp3 = ControlPoint(x=0, y=0, knots=[2,1,0])
+        cp1 = ControlPoint(Point(1, 1), knots=[1,1,0])
+        cp2 = ControlPoint(Point(6, 4), knots=[0,4,1])
+        cp3 = ControlPoint(Point(0, 0), knots=[2,1,0])
 
         # a = 0, b = 1, c = 0.5
         # ((b-a) cp1 + (c-a) cp2) / (c-a)
