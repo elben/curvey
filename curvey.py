@@ -2,16 +2,27 @@
 
 class BSpline(object):
     def __init__(self, points=None, knotvec=None):
+        # points isn't in any particular order.
+        # A list of (x, y) tuples.
         self.points = points if points else []
         self.old_points = points if points else []
-        self.knotvec = knotvec if knotvec else []
+
+        if type(knotvec) == type([]):
+            self.knotvec = KnotVector(knotvec)
+        elif type(knotvec) == ControlPoint:
+            self.knotvec = knotvec.copy()
+        else:
+            self.knotvec = KnotVector()
 
     def insert(self, knot):
         self.knotvec.insert(knot)
         old_vec = self.knotvec.old_vec
-        control_points = self.knotvec.control_points()
-        for i, cp in enumerate(control_points):
-            if cp in self.points:
+        self.old_points = self.old_points # TODO
+
+        # TODO below is wrong. we need to go get the 
+        polar_vecs = self.knotvec.control_points()
+        for i, polar in enumerate(polar_vecs):
+            if polar in self.points: # TODO fix this wrongness
                 # Control point already exists, so we don't need to recalculate
                 # its x, y.
                 continue
@@ -22,10 +33,16 @@ class BSpline(object):
             # TODO we might be at the ends, so i-1 and i+1 might crash. If we're
             # at the end, then... not sure.
 
-            left = control_points[i-1]
-            right = control_points[i+1]
-            
-            # Push into self.points.
+            left = ControlPoint(knot=control_points[i-1])
+            right = ControlPoint(knot=control_points[i+1])
+            middle = ControlPoint(knot=control_points[i])
+            ControlPoint.interpolate(left, right, middle)
+
+            self.points.append(middle)            
+
+    def _insert_control_point(self, cp):
+        pass
+
 
     def render(self, dt=.1):
         """
@@ -40,8 +57,10 @@ class ControlPoint(object):
         
         if type(knots) == type([]):
             self.knots = KnotVector(knots)
+        elif type(knots) == ControlPoint:
+            self.knots = knots.copy()
         else:
-            self.knots = knots if knots else KnotVector()
+            self.knots = KnotVector()
 
     def __cmp__(self, other):
         """
@@ -151,3 +170,15 @@ class KnotVector(object):
 
     def __eq__(self, other):
         return self.vec == other.vec
+
+class Point(object):
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+
+    def copy(self):
+        p = Point(self.x, self.y)
+        return p
+
+    def __cmp__(self, other):
+        return self.x == other.x and self.y == other.y

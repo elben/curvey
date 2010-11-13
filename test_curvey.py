@@ -2,7 +2,24 @@ from curvey import *
 import unittest
 
 class TestBSpline(unittest.TestCase):
-    pass
+    def setUp(self):
+        cp1 = ControlPoint(x=1, y=3, knots=[0,0,0])
+        cp2 = ControlPoint(x=2, y=4, knots=[0,0,1])
+        cp3 = ControlPoint(x=6, y=5, knots=[0,1,3])
+        cp4 = ControlPoint(x=5, y=1, knots=[1,3,4])
+        cp5 = ControlPoint(x=2, y=1, knots=[3,4,4])
+        cp6 = ControlPoint(x=0, y=2, knots=[4,4,4])
+        self.bs1 = BSpline(points=[cp1, cp2, cp3, cp4, cp5, cp6],
+                knotvec=[0,0,0,1,3,4,4,4])
+
+    def test_insert(self):
+        # This follows the example on Figure 13 of
+        # "An Introduction to B-Spline Curves"
+        knot = 2
+        self.bs1.insert(knot)
+
+        new_knotvec = KnotVector([0,0,0,1,2,3,4,4,4])
+        self.assertEqual(self.bs1.knotvec, new_knotvec)
 
 class TestControlPoint(unittest.TestCase):
     def setUp(self):
@@ -48,6 +65,11 @@ class TestControlPoint(unittest.TestCase):
         ControlPoint.interpolate(cp1, cp2, cp3)
         self.assertEqual(cp3.x, 8.0/3)
         self.assertEqual(cp3.y, 2.0)
+
+        ############################
+        # TODO test when there is more than one differing knot in the knot
+        # vector
+        ############################
 
 class TestKnotVector(unittest.TestCase):
     def setUp(self):
