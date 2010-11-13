@@ -1,5 +1,7 @@
 # Curvey
 
+import sys
+
 class BSpline(object):
     def __init__(self, points=None, knotvec=None):
         # points isn't in any particular order.
@@ -30,30 +32,27 @@ class BSpline(object):
                 merged_polars.append(polar)
         merged_polars.sort()
 
+        print 'Old Polars'
+        for p in old_polars:
+            print p
+
+        print 'New Polars'
+        for p in new_polars:
+            print p
+
+        print 'Merged Polars'
         for p in merged_polars:
             print p
 
-        for i, polar in enumerate(new_polars):
-            print "LOOPING with i", i
+        for i, polar in enumerate(merged_polars):
             if polar in old_polars: # TODO fix this wrongness
                 # Control point already exists, so we don't need to recalculate
                 # its x, y.
-                print "CONTINUE"
                 continue
 
             # New control point. Interpolate between the control points next to
             # it.
 
-            # TODO we might be at the ends, so i-1 and i+1 might crash. If we're
-            # at the end, then... not sure.
-
-            # TODO see we are possibly grabbing the wrong left and right.
-            # We need to use the OLD polar coordaintes. So we basically have to
-            # merge the old and new one and fix the indexes. See figure 11 of
-            # paper.
-            print "left:", str(merged_polars[i-1])
-            print "right:", str(merged_polars[i+1])
-            print "middle:", str(merged_polars[i])
             left = self._polar_to_control_point(merged_polars[i-1])
             right = self._polar_to_control_point(merged_polars[i+1])
             middle = ControlPoint(knots=merged_polars[i])
@@ -89,7 +88,7 @@ class ControlPoint(object):
         
         if type(knots) == type([]):
             self._knots = KnotVector(knots)
-        elif type(knots) == ControlPoint:
+        elif type(knots) == KnotVector:
             self._knots = knots.copy()
         else:
             self._knots = KnotVector()
@@ -125,20 +124,17 @@ class ControlPoint(object):
 
         # TODO this is going to break if there is more than one differring knots
         # and stuff. Stop and unit test this stuff!!!
-        left.polar().sort()
-        self.polar().sort()
-        right.polar().sort()
-        for i in range(degree):
-            a = left.polar().at(i)
-            b = right.polar().at(i)
-            c = self.polar().at(i)
-            if a == b == c:
-                continue
 
-            # The knots differ, so interpolate.
-            self.x = float((b-c)*left.x() + (c-a)*right.x())/(b-a)
-            self.y = float((b-c)*left.y() + (c-a)*right.y())/(b-a)
-            return a, b, c
+        lefti, middlei = KnotVector.difference(left.polar(), self.polar())
+        righti, middlei = KnotVector.difference(right.polar(), self.polar())
+
+        a = left.polar().at(lefti)
+        b = right.polar().at(righti)
+        c = self.polar().at(middlei)
+
+        self.x = float((b-c)*left.x() + (c-a)*right.x())/(b-a)
+        self.y = float((b-c)*left.y() + (c-a)*right.y())/(b-a)
+        return a, b, c
 
 
 class KnotVector(object):
@@ -148,6 +144,16 @@ class KnotVector(object):
 
         # We also save the old vector for insertions.
         self.old_vec = self.vec[:]
+
+    @staticmethod
+    def similar(*args):
+        """
+        Return a set containing the knots that are similar.
+        """
+        sharedknots = []
+        for kv in args:
+            sharedknots = sharedknots & set(kv)
+        return sharedknots
 
     @staticmethod
     def difference(a, b, degree=3):
