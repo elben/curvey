@@ -66,6 +66,7 @@ class BSpline(object):
             printar("Points after insertion:", self.points)
 
     def _insert_control_point(self, cp):
+        # TODO
         pass
 
     def _polar_to_control_point(self, polar):
@@ -82,6 +83,7 @@ class BSpline(object):
         Run the de Boor algorithm. Return list of x, y coordinates, ready to be
         rendered.
         """
+        # TODO
 
 class ControlPoint(object):
     def __init__(self, point=None, x=None, y=None, knots=None, degree=3):
