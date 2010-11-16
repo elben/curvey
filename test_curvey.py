@@ -1,4 +1,4 @@
-from curvey import *
+from libcurvey import *
 import unittest
 
 def float_equals(f1, f2, epsilon=.0001):
