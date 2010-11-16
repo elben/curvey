@@ -132,9 +132,6 @@ class ControlPoint(object):
         IllegalKnotVectorException.
         """
 
-        # TODO this is going to break if there is more than one differring knots
-        # and stuff. Stop and unit test this stuff!!!
-
         try:
             lefti, middlei = KnotVector.difference(left.polar(), self.polar())
             righti, middlei = KnotVector.difference(right.polar(), self.polar())
