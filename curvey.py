@@ -128,14 +128,18 @@ class ControlPoint(object):
         Returns tuple (a, b, c), which are the differring knots for left,
         right, and this respectively.
 
-        Assumes the KnotVectors of each ControlPoints are legit.
+        Assumes the KnotVectors of each ControlPoints are legit. If not, throws
+        IllegalKnotVectorException.
         """
 
         # TODO this is going to break if there is more than one differring knots
         # and stuff. Stop and unit test this stuff!!!
 
-        lefti, middlei = KnotVector.difference(left.polar(), self.polar())
-        righti, middlei = KnotVector.difference(right.polar(), self.polar())
+        try:
+            lefti, middlei = KnotVector.difference(left.polar(), self.polar())
+            righti, middlei = KnotVector.difference(right.polar(), self.polar())
+        except IllegalKnotVectorException as e:
+            raise e
 
         a = left.polar().at(lefti)
         b = right.polar().at(righti)
@@ -145,6 +149,9 @@ class ControlPoint(object):
         self.p.y = float((b-c)*left.y() + (c-a)*right.y())/(b-a)
         return a, b, c
 
+
+class IllegalKnotVectorException(Exception):
+    pass
 
 class KnotVector(object):
     def __init__(self, vec=None, degree=3):
@@ -190,7 +197,7 @@ class KnotVector(object):
                 ia += 1 
 
         if len(acopy.vec) != 1 or len(bcopy.vec) != 1:
-            raise Exception(("""More than one differing knot value. acopy: %s,
+            raise IllegalKnotVectorException(("""More than one differing knot value. acopy: %s,
                     bcopy: %s""" % (str(acopy.vec), str(bcopy.vec))))
         return a.vec.index(acopy.vec[0]), b.vec.index(bcopy.vec[0])
 

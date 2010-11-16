@@ -124,9 +124,15 @@ class TestControlPoint(unittest.TestCase):
         self.assertEqual(cp3.y(), 3.0/4 * cp1.y() + 1.0/4 * cp2.y())
 
         ############################
-        # TODO test when there is more than one differing knot in the knot
-        # vector
+        # Test when there is more than one differing knot in the knot vector.
         ############################
+
+        cp1 = ControlPoint(Point(1, 1), knots=[0,2,4])
+        cp2 = ControlPoint(Point(6, 4), knots=[0,3,8])
+        cp3 = ControlPoint(Point(0, 0), knots=[0,5,8])
+
+        self.assertRaises(IllegalKnotVectorException, cp3.interpolate, cp1, cp2)
+
 
 class TestKnotVector(unittest.TestCase):
     def setUp(self):
@@ -239,6 +245,9 @@ class TestKnotVector(unittest.TestCase):
         self.assertEqual(KnotVector.difference(kv1, kv3), (0, 2))
         self.assertEqual(KnotVector.difference(kv2, kv3), (2, 2))
 
+        kv1 = KnotVector([1,4,8])
+        kv2 = KnotVector([1,6,9])
+        self.assertRaises(IllegalKnotVectorException, KnotVector.difference, kv1, kv2)
 
 if __name__ == '__main__':
     unittest.main()
