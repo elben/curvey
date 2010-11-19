@@ -14,14 +14,14 @@ class BSpline(object):
         # A list of Points. Listed in order of user insertion.
         # So the curve is rendered based on the order of points.
         self.user_points = points if points else []
-        self.internal_points = points if points else []
+        self._internal_points = points if points else []
 
         if type(knotvec) == type([]):
-            self.knotvec = KnotVector(knotvec)
+            self._knotvec = KnotVector(knotvec)
         elif type(knotvec) == ControlPoint:
-            self.knotvec = knotvec.copy()
+            self._knotvec = knotvec.copy()
         else:
-            self.knotvec = KnotVector()
+            self._knotvec = KnotVector()
 
         self.degree = degree
 
@@ -71,7 +71,7 @@ class BSpline(object):
         Replaces the spline's current knot vector with knotvec.
         """
 
-        self.knotvec = knotvec
+        self._knotvec = knotvec
         self._de_boor()
 
     def is_valid(self):
@@ -79,7 +79,7 @@ class BSpline(object):
         Returns true if the spline is renderable. This means that the number of
         control points and number of knot vectors match.
         """
-        return len(self.knotvec) == len(self.internal_points) + self.degree - 1
+        return len(self._knotvec) == len(self._internal_points) + self.degree - 1
 
     def _de_boor(self, dt=.1):
         """
@@ -97,9 +97,9 @@ class BSpline(object):
         points as defined by the knot insertion algorithm.
         """
 
-        old_polars = self.knotvec.polar_points()
-        self.knotvec.insert(knot)
-        new_polars = self.knotvec.polar_points()
+        old_polars = self._knotvec.polar_points()
+        self._knotvec.insert(knot)
+        new_polars = self._knotvec.polar_points()
         new_control_points = []
 
         merged_polars = []
@@ -134,17 +134,17 @@ class BSpline(object):
 
             new_control_points.append(middle)
 
-        self.internal_points = new_control_points
+        self._internal_points = new_control_points
 
         if DEBUG:
-            printar("Points after insertion:", self.internal_points)
+            printar("Points after insertion:", self._internal_points)
 
     def _polar_to_control_point(self, polar):
         """
         Given a KnotVector representing the polar coordinates of a ControlPoint,
         find the corresponding ControlPoint.
         """
-        for cp in self.internal_points:
+        for cp in self._internal_points:
             if polar == cp.polar():
                 return cp
 
