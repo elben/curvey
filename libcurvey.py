@@ -13,7 +13,8 @@ class BSpline(object):
     def __init__(self, points=None, knotvec=None, degree=3):
         # A list of Points. Listed in order of user insertion.
         # So the curve is rendered based on the order of points.
-        self.points = points if points else []
+        self.user_points = points if points else []
+        self.internal_points = points if points else []
 
         if type(knotvec) == type([]):
             self.knotvec = KnotVector(knotvec)
@@ -26,8 +27,8 @@ class BSpline(object):
 
     def render(self, dt=.1):
         """
-        Run the de Boor algorithm. Return list of x, y coordinates, ready to be
-        rendered.
+        Return list of x, y discrete points on the spline. This is the points
+        that is to be rendered on the screen.
 
         Throws InvalidBSplineException is the spline is not in a valid state for
         rendering. Possible invalid states:
@@ -45,33 +46,50 @@ class BSpline(object):
         Thus, the user may have to modify the knot vector before the spline is
         render()-able.
         """
-        pass
+        self.user_points.append(cp)
+        self._de_boor()
     
     def remove_control_point(self, cp):
         """
         Removes ControlPoint cp from the spline. This might put the spline into
         an invalid state.
         """
-        pass
+        self.user_points.remove(cp)
+        self._de_boor()
 
     def replace_control_point(self, cp, cpnew):
         """
         Replaces ControlPoint cp with cpnew.
         """
-        pass
+        i = self.user_points.index(cp)
+        del self.user_points[i]
+        self.user_points.insert(i, cpnew)
+        self._de_boor()
 
     def replace_knot_vector(self, knotvec):
         """
         Replaces the spline's current knot vector with knotvec.
         """
-        pass
+
+        self.knotvec = knotvec
+        self._de_boor()
 
     def is_valid(self):
         """
         Returns true if the spline is renderable. This means that the number of
         control points and number of knot vectors match.
         """
-        return len(points) == len(self.knotvec) + degree - 1
+        return len(self.knotvec) == len(self.internal_points) + self.degree - 1
+
+    def _de_boor(self, dt=.1):
+        """
+        Runs the de Boor algorithm on the spline to calculate the points to be
+        rendered on the screen.
+
+        Implementation details: we insert degree knots every dt in paramater
+        space.
+        """
+        pass
 
     def _insert_knot(self, knot):
         """
@@ -116,22 +134,22 @@ class BSpline(object):
 
             new_control_points.append(middle)
 
-        self.points = new_control_points
+        self.internal_points = new_control_points
 
         if DEBUG:
-            printar("Points after insertion:", self.points)
+            printar("Points after insertion:", self.internal_points)
 
     def _polar_to_control_point(self, polar):
         """
         Given a KnotVector representing the polar coordinates of a ControlPoint,
         find the corresponding ControlPoint.
         """
-        for cp in self.points:
+        for cp in self.internal_points:
             if polar == cp.polar():
                 return cp
 
 class ControlPoint(object):
-    def __init__(self, point=None, x=None, y=None, knots=None, degree=3):
+    def __init__(self, point=None, x=None, y=None, knots=None):
         self.p = point if point else Point()
         if x:
             self.p.x = x
@@ -144,9 +162,6 @@ class ControlPoint(object):
             self._knots = knots.copy()
         else:
             self._knots = KnotVector()
-
-    def __str__(self):
-        return "(%d, %d) %s" % (self.p.x, self.p.y, self.polar())
 
     def polar(self):
         return self._knots
@@ -161,14 +176,7 @@ class ControlPoint(object):
             return self.p.y
         self.p.y = y
 
-    def __cmp__(self, other):
-        """
-        Returns 0 if equal, negative if self < other, and positive if self >
-        other.
-        """
-        return self.polar().__cmp__(other.polar())
-
-    def interpolate(self, left, right, degree=3):
+    def interpolate(self, left, right):
         """
         Given left, right, and this ControlPoints, sets x, y values.
 
@@ -193,14 +201,28 @@ class ControlPoint(object):
         self.p.y = float((b-c)*left.y() + (c-a)*right.y())/(b-a)
         return a, b, c
 
+    def copy(self):
+        cp = ControlPoint()
+        cp.p = self.p.copy()
+        cp._knots = self._knots.copy()
+        return cp
+
+    def __cmp__(self, other):
+        return self.polar().__cmp__(other.polar())
+
+    def __str__(self):
+        return "(%d, %d) %s" % (self.p.x, self.p.y, self.polar())
+
 
 class IllegalKnotVectorException(Exception):
     pass
 
 class KnotVector(object):
-    def __init__(self, vec=None, degree=3):
-        self.degree = degree
+    def __init__(self, vec=None):
         self.vec = vec if vec else []
+
+    def degree(self):
+        return len(self.vec)
 
     @staticmethod
     def similar(*args):
@@ -213,7 +235,7 @@ class KnotVector(object):
         return sharedknots
 
     @staticmethod
-    def difference(a, b, degree=3):
+    def difference(a, b):
         """
         Assuming there is one differing knot in the polar coordinate a, b,
         return a tuple (ai, bi), which are the indexes to the differring knots
@@ -222,6 +244,10 @@ class KnotVector(object):
         NOTE: ai and bi will be the first index that differs. Thus, [0, 4, 4]
         and [0, 4, 5] will return (1, 2) because the difference is 4 and 5.
         """
+
+        if a.degree() != b.degree():
+            raise IllegalKnotVectorException("Degrees of knot vectors differ.")
+
         a.sort()
         b.sort()
 
@@ -324,6 +350,9 @@ class KnotVector(object):
 
     def __ne__(self, other):
         return not (self == other)
+
+    def __len__(self):
+        return len(self.vec)
 
 class Point(object):
     def __init__(self, x=0, y=0):
