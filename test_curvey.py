@@ -15,6 +15,19 @@ class TestBSpline(unittest.TestCase):
         self.bs1 = BSpline(points=[self.cp1, self.cp2, self.cp3, self.cp4,
             self.cp5, self.cp6], knotvec=[0,0,0,1,3,4,4,4])
 
+    def test_is_valid(self):
+        self.assertTrue(self.bs1.is_valid())
+
+        bs = BSpline(degree=4)
+        self.assertFalse(bs.is_valid())
+        bs.insert_control_point(ControlPoint(0, 0))
+        self.assertFalse(bs.is_valid())
+        bs.insert_control_point(ControlPoint(1, 1))
+        bs.insert_control_point(ControlPoint(0, 2))
+        bs.insert_control_point(ControlPoint(1, 3))
+        bs.replace_knot_vector(range(7))
+        self.assertTrue(bs.is_valid())
+
     def test_polar_to_control_point(self):
         self.assertEqual(self.bs1._polar_to_control_point(KnotVector([0,0,0])),
             self.cp1)
@@ -66,10 +79,6 @@ class TestBSpline(unittest.TestCase):
         self.assertTrue(float_equals(self.bs1.points[6].x(), 4))
         self.assertTrue(float_equals(self.bs1.points[6].y(), 1))
 
-    def test_insert_knot_keeps_control_point_order(self):
-        # When the user adds a ControlPoint, the system should not reorder the
-        # order of ControlPoints inserted.
-        pass
 
 class TestControlPoint(unittest.TestCase):
     def setUp(self):

@@ -10,7 +10,7 @@ def printar(headline, points):
         print p
 
 class BSpline(object):
-    def __init__(self, points=None, knotvec=None):
+    def __init__(self, points=None, knotvec=None, degree=3):
         # A list of Points. Listed in order of user insertion.
         # So the curve is rendered based on the order of points.
         self.points = points if points else []
@@ -21,6 +21,8 @@ class BSpline(object):
             self.knotvec = knotvec.copy()
         else:
             self.knotvec = KnotVector()
+
+        self.degree = degree
 
     def render(self, dt=.1):
         """
@@ -57,6 +59,19 @@ class BSpline(object):
         Replaces ControlPoint cp with cpnew.
         """
         pass
+
+    def replace_knot_vector(self, knotvec):
+        """
+        Replaces the spline's current knot vector with knotvec.
+        """
+        pass
+
+    def is_valid(self):
+        """
+        Returns true if the spline is renderable. This means that the number of
+        control points and number of knot vectors match.
+        """
+        return len(points) == len(self.knotvec) + degree - 1
 
     def _insert_knot(self, knot):
         """
@@ -114,12 +129,6 @@ class BSpline(object):
         for cp in self.points:
             if polar == cp.polar():
                 return cp
-
-    def is_valid(self):
-        """
-        Returns true if the spline is renderable. This means that the number of
-        control points and number of knot vectors match.
-        """
 
 class ControlPoint(object):
     def __init__(self, point=None, x=None, y=None, knots=None, degree=3):
