@@ -25,12 +25,12 @@ class TestBSpline(unittest.TestCase):
         self.assertEqual(self.bs1._polar_to_control_point(KnotVector([100,4,4])),
             None)
 
-    def test_insert(self):
+    def test_insert_knot(self):
         # This follows the example on Figure 12 and 13 of
         # "An Introduction to B-Spline Curves". This tests essentially the de
         # Boor algorithm. We insert knot=2 twice to get P(2,2,2).
 
-        self.bs1.insert(knot=2)
+        self.bs1._insert_knot(knot=2)
         new_knotvec = KnotVector([0,0,0,1,2,3,4,4,4])
         self.assertEqual(self.bs1.knotvec, new_knotvec)
         # assert new points added to right place and old points removed
@@ -46,8 +46,8 @@ class TestBSpline(unittest.TestCase):
         self.assertEqual(self.bs1.points[4].x(), 4)
         self.assertEqual(self.bs1.points[4].y(), 1)
 
-        self.bs1.insert(knot=2)
-        self.bs1.insert(knot=2)
+        self.bs1._insert_knot(knot=2)
+        self.bs1._insert_knot(knot=2)
         new_knotvec = KnotVector([0,0,0,1,2,2,2,3,4,4,4])
         self.assertEqual(self.bs1.knotvec, new_knotvec)
         # assert new points added to right place and old points removed
@@ -65,6 +65,11 @@ class TestBSpline(unittest.TestCase):
         self.assertTrue(float_equals(self.bs1.points[5].y(), 7.0/3))
         self.assertTrue(float_equals(self.bs1.points[6].x(), 4))
         self.assertTrue(float_equals(self.bs1.points[6].y(), 1))
+
+    def test_insert_knot_keeps_control_point_order(self):
+        # When the user adds a ControlPoint, the system should not reorder the
+        # order of ControlPoints inserted.
+        pass
 
 class TestControlPoint(unittest.TestCase):
     def setUp(self):
@@ -123,9 +128,8 @@ class TestControlPoint(unittest.TestCase):
         self.assertEqual(cp3.x(), 3.0/4 * cp1.x() + 1.0/4 * cp2.x())
         self.assertEqual(cp3.y(), 3.0/4 * cp1.y() + 1.0/4 * cp2.y())
 
-        ############################
+    def test_interpolate_with_more_differing_knots(self):
         # Test when there is more than one differing knot in the knot vector.
-        ############################
 
         cp1 = ControlPoint(Point(1, 1), knots=[0,2,4])
         cp2 = ControlPoint(Point(6, 4), knots=[0,3,8])
@@ -197,14 +201,14 @@ class TestKnotVector(unittest.TestCase):
         kv3copy.insert(100)
         self.assertNotEqual(kv3copy, self.kv3)
 
-    def test_control_points(self):
-        self.assertEqual(self.kv1.control_points(), [])
+    def test_polar_points(self):
+        self.assertEqual(self.kv1.polar_points(), [])
         
         kv2pts = [KnotVector(range(3)),
                   KnotVector(range(1,4)),
                   KnotVector(range(2,5)),
                   KnotVector(range(3,6))]
-        pts = self.kv2.control_points();
+        pts = self.kv2.polar_points();
         for p1, p2 in zip(pts, kv2pts):
             self.assertEqual(p1, p2)
         
@@ -214,7 +218,7 @@ class TestKnotVector(unittest.TestCase):
                   KnotVector([4,5,6]),
                   KnotVector([5,6,6]),
                   KnotVector([6,6,6])]
-        pts = self.kv3.control_points();
+        pts = self.kv3.polar_points();
         for p1, p2 in zip(pts, kv3pts):
             self.assertEqual(p1, p2)
 
