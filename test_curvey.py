@@ -15,6 +15,21 @@ class TestBSpline(unittest.TestCase):
         self.bs1 = BSpline(points=[self.cp1, self.cp2, self.cp3, self.cp4,
             self.cp5, self.cp6], knotvec=[0,0,0,1,3,4,4,4])
 
+    def test_de_boor(self):
+        self.bs1._de_boor()
+        points = self.bs1._internal_points
+        knotvec = self.bs1._internal_knotvec
+        self.assertEqual(knotvec, KnotVector([0,0,0,1,2,2,2,3,4,4,4]))
+
+        self.assertTrue(float_equals(self.bs1._internal_points[3].x(), 47.0/9))
+        self.assertTrue(float_equals(self.bs1._internal_points[3].y(), 32.0/9))
+        self.assertTrue(float_equals(self.bs1._internal_points[4].x(), 46.0/9))
+        self.assertTrue(float_equals(self.bs1._internal_points[4].y(), 53.0/18))
+        self.assertTrue(float_equals(self.bs1._internal_points[5].x(), 5))
+        self.assertTrue(float_equals(self.bs1._internal_points[5].y(), 7.0/3))
+        self.assertTrue(float_equals(self.bs1._internal_points[6].x(), 4))
+        self.assertTrue(float_equals(self.bs1._internal_points[6].y(), 1))
+
     def test_is_valid(self):
         self.assertTrue(self.bs1.is_valid())
 
@@ -35,8 +50,8 @@ class TestBSpline(unittest.TestCase):
             self.cp3)
         self.assertEqual(self.bs1._polar_to_control_point(KnotVector([4,4,4])),
             self.cp6)
-        self.assertEqual(self.bs1._polar_to_control_point(KnotVector([100,4,4])),
-            None)
+        self.assertRaises(Exception,
+                self.bs1._polar_to_control_point, KnotVector([100,4,4]))
 
     def test_insert_knot(self):
         # This follows the example on Figure 12 and 13 of
@@ -45,7 +60,7 @@ class TestBSpline(unittest.TestCase):
 
         self.bs1._insert_knot(knot=2)
         new_knotvec = KnotVector([0,0,0,1,2,3,4,4,4])
-        self.assertEqual(self.bs1._knotvec, new_knotvec)
+        self.assertEqual(self.bs1._internal_knotvec, new_knotvec)
         # assert new points added to right place and old points removed
         self.assertEqual(self.bs1._internal_points[2].polar(), KnotVector([0,1,2]))
         self.assertEqual(self.bs1._internal_points[3].polar(), KnotVector([1,2,3]))
@@ -62,7 +77,7 @@ class TestBSpline(unittest.TestCase):
         self.bs1._insert_knot(knot=2)
         self.bs1._insert_knot(knot=2)
         new_knotvec = KnotVector([0,0,0,1,2,2,2,3,4,4,4])
-        self.assertEqual(self.bs1._knotvec, new_knotvec)
+        self.assertEqual(self.bs1._internal_knotvec, new_knotvec)
         # assert new points added to right place and old points removed
         self.assertEqual(self.bs1._internal_points[2].polar(), KnotVector([0,1,2]))
         self.assertEqual(self.bs1._internal_points[3].polar(), KnotVector([1,2,2]))

@@ -17,11 +17,14 @@ class BSpline(object):
         self._internal_points = points if points else []
 
         if type(knotvec) == type([]):
-            self._knotvec = KnotVector(knotvec)
+            self._internal_knotvec = KnotVector(knotvec)
+            self.user_knotvec = KnotVector(knotvec)
         elif type(knotvec) == ControlPoint:
-            self._knotvec = knotvec.copy()
+            self._internal_knotvec = knotvec.copy()
+            self.user_knotvec = knotvec.copy()
         else:
-            self._knotvec = KnotVector()
+            self._internal_knotvec = KnotVector()
+            self.user_knotvec = KnotVector()
 
         self.degree = degree
 
@@ -71,15 +74,18 @@ class BSpline(object):
         Replaces the spline's current knot vector with knotvec.
         """
 
-        self._knotvec = knotvec
+        if type(knotvec) == list:
+            knotvec = KnotVector(knotvec)
+
+        self.user_knotvec = knotvec
         self._de_boor()
 
     def is_valid(self):
         """
         Returns true if the spline is renderable. This means that the number of
-        control points and number of knot vectors match.
+        user-defined control points and knots match.
         """
-        return len(self._knotvec) == len(self._internal_points) + self.degree - 1
+        return len(self.user_knotvec) == len(self.user_points) + self.degree - 1
 
     def _de_boor(self, dt=.1):
         """
@@ -89,7 +95,36 @@ class BSpline(object):
         Implementation details: we insert degree knots every dt in paramater
         space.
         """
-        pass
+        
+        # TODO: for now, we implement this the ghetto way. Each time this method
+        # is called, we clear everything we've ever had. We then start from
+        # scratch and compute every point.
+        # This is, of course, a hack and should be optimized.
+        
+        if not self.is_valid():
+            return
+
+        self._internal_points = self.user_points[:]
+        self._internal_knotvec = self.user_knotvec.copy()
+        
+        t = self.user_knotvec.at(0)
+        t_end = self.user_knotvec.at(-1)
+
+        while t <= t_end:
+            needed_knots = self.degree - self._count_knots(t) 
+            for i in range(needed_knots):
+                self._insert_knot(t)
+            t += dt
+        
+    def _count_knots(self, knot):
+        """
+        Returns the number of times knot is found in the internal knot vector.
+        """
+        count = 0
+        for k in self._internal_knotvec:
+            if k == knot:
+                count += 1
+        return count
 
     def _insert_knot(self, knot):
         """
@@ -97,9 +132,9 @@ class BSpline(object):
         points as defined by the knot insertion algorithm.
         """
 
-        old_polars = self._knotvec.polar_points()
-        self._knotvec.insert(knot)
-        new_polars = self._knotvec.polar_points()
+        old_polars = self._internal_knotvec.polar_points()
+        self._internal_knotvec.insert(knot)
+        new_polars = self._internal_knotvec.polar_points()
         new_control_points = []
 
         merged_polars = []
@@ -147,6 +182,7 @@ class BSpline(object):
         for cp in self._internal_points:
             if polar == cp.polar():
                 return cp
+        raise Exception("ControlPoint not found for %s." % (polar,))
 
 class ControlPoint(object):
     def __init__(self, point=None, x=None, y=None, knots=None):
@@ -220,6 +256,9 @@ class IllegalKnotVectorException(Exception):
 class KnotVector(object):
     def __init__(self, vec=None):
         self.vec = vec if vec else []
+
+    def __iter__(self):
+        return self.vec.__iter__()
 
     def degree(self):
         return len(self.vec)
