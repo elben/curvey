@@ -6,8 +6,10 @@ import math
 DEBUG = False
 
 def printar(headline, points):
+    print
+    print >> sys.stderr, headline
     for p in points:
-        print p
+        print >> sys.stderr, p
 
 class BSpline(object):
     def __init__(self, points=None, knotvec=None, degree=3):
@@ -74,7 +76,7 @@ class BSpline(object):
         Replaces the spline's current knot vector with knotvec.
         """
 
-        if type(knotvec) == list:
+        if type(knotvec) != KnotVector:
             knotvec = KnotVector(knotvec)
 
         self.user_knotvec = knotvec
@@ -104,16 +106,23 @@ class BSpline(object):
         if not self.is_valid():
             return
 
-        self._internal_points = self.user_points[:]
+        self._internal_points = self.user_points[:]  # TODO copy ControlPoints?
         self._internal_knotvec = self.user_knotvec.copy()
         
-        t = self.user_knotvec.at(0)
+        # Tell the ControlPoints their polar coords.
+        for i, cp in enumerate(self._internal_points):
+            cp.polar(KnotVector(self._internal_knotvec[i:i+self.degree]))
+
+        printar("internal points", self._internal_points)
+        printar("internal knotvec", self._internal_knotvec)
+        t = self.user_knotvec.at(0) + dt
         t_end = self.user_knotvec.at(-1)
 
         while t <= t_end:
             needed_knots = self.degree - self._count_knots(t) 
             for i in range(needed_knots):
                 self._insert_knot(t)
+                printar("internal knots now", self._internal_knotvec)
             t += dt
         
     def _count_knots(self, knot):
@@ -132,9 +141,9 @@ class BSpline(object):
         points as defined by the knot insertion algorithm.
         """
 
-        old_polars = self._internal_knotvec.polar_points()
+        old_polars = self._internal_knotvec.polar_points(self.degree)
         self._internal_knotvec.insert(knot)
-        new_polars = self._internal_knotvec.polar_points()
+        new_polars = self._internal_knotvec.polar_points(self.degree)
         new_control_points = []
 
         merged_polars = []
@@ -144,7 +153,7 @@ class BSpline(object):
                 merged_polars.append(polar)
         merged_polars.sort()
 
-        if DEBUG:
+        if True:
             printar('Old Polars', old_polars)
             printar('New Polars', new_polars)
             printar('Merge Polars', merged_polars)
@@ -162,10 +171,22 @@ class BSpline(object):
             # New control point. Interpolate between the control points next to
             # it.
 
+            printar("Looking at left", merged_polars[i-1])
+            printar("Looking at middle", merged_polars[i])
+            printar("Looking at right", merged_polars[i+1])
             left = self._polar_to_control_point(merged_polars[i-1])
             right = self._polar_to_control_point(merged_polars[i+1])
             middle = ControlPoint(knots=merged_polars[i])
-            middle.interpolate(left, right)
+            try:
+                middle.interpolate(left, right)
+            except IllegalKnotVectorException as e:
+                # This is sometimes expected. For example, it could be that
+                # there is nothing at this point in the b-spline.
+                # TODO: there must be a better way to check whether or not a
+                # point exists on the spline for a given t.
+                # Example: the end control points might not match. If they don't
+                # match, then we won't have anything at t=0, for example.
+                pass
 
             new_control_points.append(middle)
 
@@ -199,7 +220,9 @@ class ControlPoint(object):
         else:
             self._knots = KnotVector()
 
-    def polar(self):
+    def polar(self, knots=None):
+        if knots:
+            self._knots = knots
         return self._knots
 
     def x(self, x=None):
@@ -260,6 +283,10 @@ class KnotVector(object):
     def __iter__(self):
         return self.vec.__iter__()
 
+    def __getitem__(self, key):
+        # key could be integer or slice object
+        return self.vec[key]
+
     def degree(self):
         return len(self.vec)
 
@@ -316,19 +343,19 @@ class KnotVector(object):
     def at(self, i):
         return self.vec[i]
 
-    def polar_points(self, return_old=False):
+    def polar_points(self, degree=3):
         """
         Return a list of KnotVectors that corresponds to the polar notation for
         the control points.
         """
         polars = []
 
-        if len(self.vec) < 3:
+        if len(self.vec) < degree:
             return polars
 
         i = 0
-        while i <= (len(self.vec) - 3):
-            polars.append(KnotVector(self.vec[i:i+3]))
+        while i <= (len(self.vec) - degree):
+            polars.append(KnotVector(self.vec[i:i+degree]))
             i += 1
         return polars
 
@@ -381,7 +408,7 @@ class KnotVector(object):
         
         for v1, v2 in zip(self.vec, other_knots.vec):
             if v1 != v2:
-                return v1 - v2
+                return 1 if v1 - v2 > 0 else -1
         return 0    # equal
 
     def __eq__(self, other):
