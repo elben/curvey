@@ -4,13 +4,7 @@ import sys
 import math
 from util import *
 
-DEBUG = True
-
-def printar(headline, points):
-    print
-    print >> sys.stderr, headline
-    for p in points:
-        print >> sys.stderr, p
+DEBUG = False
 
 class BSpline(object):
     def __init__(self, points=None, knotvec=None, degree=3):
@@ -115,15 +109,16 @@ class BSpline(object):
         for i, cp in enumerate(self._internal_points):
             cp.polar(KnotVector(self._internal_knotvec[i:i+self.degree]))
 
-        printar("internal points", self._internal_points)
-        printar("internal knotvec", self._internal_knotvec)
-
         t = self.user_knotvec.at(self.degree-1) + dt
         t_end = self.user_knotvec.at(-self.degree)
-        print "t start" + str(t)
-        print "t end" + str(t_end)
 
-        while t < t_end:
+        if DEBUG:
+            printar("internal points", self._internal_points)
+            printar("internal knotvec", self._internal_knotvec)
+            print "t start " + str(t)
+            print "t end " + str(t_end)
+
+        while epsilon_less_than(t, t_end):
             needed_knots = self.degree - self._count_knots(t) 
             for i in range(needed_knots):
                 self._insert_knot(t)
@@ -277,7 +272,7 @@ class ControlPoint(object):
         return self.polar().__cmp__(other.polar())
 
     def __str__(self):
-        return "(%d, %d) %s" % (self.p.x, self.p.y, self.polar())
+        return "(%.2f, %.2f) %s" % (self.p.x, self.p.y, self.polar())
 
 
 class IllegalKnotVectorException(Exception):
@@ -426,7 +421,7 @@ class KnotVector(object):
         if len(self.vec) != len(other.vec):
             return False
         for i, j in zip(self.vec, other.vec):
-            if not float_equals(i, j):
+            if not epsilon_equals(i, j):
                 return False
         return True
 
@@ -446,7 +441,7 @@ class Point(object):
         return p
 
     def __eq__(self, other):
-        return float_equals(self.x, other.x) and float_equals(self.y, other.y)
+        return epsilon_equals(self.x, other.x) and epsilon_equals(self.y, other.y)
 
     def __cmp__(self, other):
         """
