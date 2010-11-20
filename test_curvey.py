@@ -29,22 +29,19 @@ class TestBSpline(unittest.TestCase):
         self.assertEquals(knotvec.at(-1), 1)
 
     def test_de_boor_cubic(self):
-        """
-        self.bs1._de_boor()
+        self.bs1._de_boor(dt=.5)
         points = self.bs1._internal_points
         knotvec = self.bs1._internal_knotvec
-        self.assertEqual(knotvec, KnotVector([0,0,0,1,2,2,2,3,4,4,4]))
+        printar("points",points)
+        print knotvec
+        self.assertEqual(knotvec,
+                KnotVector([0,0,0,0.5,0.5,0.5, 1,1,1,1.5,1.5,1.5,
+                    2,2,2,2.5,2.5,2.5,3,3,3,3.5,3.5,3.5,4,4,4]))
 
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[3].x(), 47.0/9))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[3].y(), 32.0/9))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[4].x(), 46.0/9))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[4].y(), 53.0/18))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[5].x(), 5))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[5].y(), 7.0/3))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[6].x(), 4))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[6].y(), 1))
-        """
-
+        self.assertTrue(epsilon_equals(self.bs1._internal_points[0].x(), 0))
+        self.assertTrue(epsilon_equals(self.bs1._internal_points[0].y(), 0))
+        self.assertTrue(epsilon_equals(self.bs1._internal_points[-1].x(), 4))
+        self.assertTrue(epsilon_equals(self.bs1._internal_points[-1].y(), 0))
 
     def test_is_invalid_if_not_enough_points(self):
         bs = BSpline(degree=4)

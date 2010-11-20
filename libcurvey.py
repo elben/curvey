@@ -85,7 +85,7 @@ class BSpline(object):
         return (len(self.user_points) > self.degree and
                 len(self.user_knotvec) == len(self.user_points)+self.degree-1)
 
-    def _de_boor(self, dt=.05):
+    def _de_boor(self, dt=.1):
         """
         Runs the de Boor algorithm on the spline to calculate the points to be
         rendered on the screen.
