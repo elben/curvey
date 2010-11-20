@@ -23,8 +23,10 @@ class TestBSpline(unittest.TestCase):
 
         points = bs._internal_points
         knotvec = bs._internal_knotvec
-        printar("points", points)
-        printar("knotvec", knotvec)
+        self.assertEquals(points[0], ControlPoint(Point(0, 0)))
+        self.assertEquals(points[-1], ControlPoint(Point(4, 0)))
+        self.assertEquals(knotvec.at(0), 0)
+        self.assertEquals(knotvec.at(-1), 1)
 
     def test_de_boor_cubic(self):
         """
