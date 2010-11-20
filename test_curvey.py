@@ -1,8 +1,6 @@
 from libcurvey import *
+from util import *
 import unittest
-
-def float_equals(f1, f2, epsilon=.0001):
-    return abs(f1-f2) < epsilon
 
 class TestBSpline(unittest.TestCase):
     def setUp(self):
@@ -31,6 +29,24 @@ class TestBSpline(unittest.TestCase):
         self.assertTrue(float_equals(self.bs1._internal_points[6].x(), 4))
         self.assertTrue(float_equals(self.bs1._internal_points[6].y(), 1))
 
+    def test_is_invalid_if_not_enough_points(self):
+        bs = BSpline(degree=4)
+        self.assertFalse(bs.is_valid())
+        bs.insert_control_point(ControlPoint(Point(0, 0)))
+        self.assertFalse(bs.is_valid())
+        bs.insert_control_point(ControlPoint(Point(1, 1)))
+        bs.insert_control_point(ControlPoint(Point(2, 0)))
+        bs.insert_control_point(ControlPoint(Point(3, 1)))
+
+        # We have the right amount of knot vectors for the number of control
+        # points, but we have too few control points still.
+        bs.replace_knot_vector(range(7))
+        self.assertFalse(bs.is_valid())
+
+        bs.replace_knot_vector(range(8))
+        bs.insert_control_point(ControlPoint(Point(4, 0)))
+        self.assertTrue(bs.is_valid())
+
     def test_is_valid(self):
         self.assertTrue(self.bs1.is_valid())
 
@@ -39,9 +55,11 @@ class TestBSpline(unittest.TestCase):
         bs.insert_control_point(ControlPoint(Point(0, 0)))
         self.assertFalse(bs.is_valid())
         bs.insert_control_point(ControlPoint(Point(1, 1)))
-        bs.insert_control_point(ControlPoint(Point(0, 2)))
-        bs.insert_control_point(ControlPoint(Point(1, 3)))
-        bs.replace_knot_vector(range(7))
+        bs.insert_control_point(ControlPoint(Point(2, 0)))
+        bs.insert_control_point(ControlPoint(Point(3, 1)))
+        bs.insert_control_point(ControlPoint(Point(4, 0)))
+        self.assertFalse(bs.is_valid())
+        bs.replace_knot_vector(range(8))
         self.assertTrue(bs.is_valid())
 
     def test_polar_to_control_point(self):

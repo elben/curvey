@@ -2,8 +2,9 @@
 
 import sys
 import math
+from util import *
 
-DEBUG = False
+DEBUG = True
 
 def printar(headline, points):
     print
@@ -84,10 +85,11 @@ class BSpline(object):
 
     def is_valid(self):
         """
-        Returns true if the spline is renderable. This means that the number of
-        user-defined control points and knots match.
+        Returns true if the spline has enough control points and knot vectors
+        for the given degree.
         """
-        return len(self.user_knotvec) == len(self.user_points) + self.degree - 1
+        return (len(self.user_points) > self.degree and
+                len(self.user_knotvec) == len(self.user_points)+self.degree-1)
 
     def _de_boor(self, dt=.1):
         """
@@ -115,14 +117,18 @@ class BSpline(object):
 
         printar("internal points", self._internal_points)
         printar("internal knotvec", self._internal_knotvec)
-        t = self.user_knotvec.at(0) + dt
-        t_end = self.user_knotvec.at(-1)
 
-        while t <= t_end:
+        t = self.user_knotvec.at(self.degree-1) + dt
+        t_end = self.user_knotvec.at(-self.degree)
+        print "t start" + str(t)
+        print "t end" + str(t_end)
+
+        while t < t_end:
             needed_knots = self.degree - self._count_knots(t) 
             for i in range(needed_knots):
                 self._insert_knot(t)
-                printar("internal knots now", self._internal_knotvec)
+                if DEBUG:
+                    printar("internal knots now", self._internal_knotvec)
             t += dt
         
     def _count_knots(self, knot):
@@ -153,7 +159,7 @@ class BSpline(object):
                 merged_polars.append(polar)
         merged_polars.sort()
 
-        if True:
+        if DEBUG:
             printar('Old Polars', old_polars)
             printar('New Polars', new_polars)
             printar('Merge Polars', merged_polars)
@@ -171,9 +177,10 @@ class BSpline(object):
             # New control point. Interpolate between the control points next to
             # it.
 
-            printar("Looking at left", merged_polars[i-1])
-            printar("Looking at middle", merged_polars[i])
-            printar("Looking at right", merged_polars[i+1])
+            if DEBUG:
+                printar("Looking at left", merged_polars[i-1])
+                printar("Looking at middle", merged_polars[i])
+                printar("Looking at right", merged_polars[i+1])
             left = self._polar_to_control_point(merged_polars[i-1])
             right = self._polar_to_control_point(merged_polars[i+1])
             middle = ControlPoint(knots=merged_polars[i])
@@ -338,7 +345,11 @@ class KnotVector(object):
         return a.vec.index(acopy.vec[0]), b.vec.index(bcopy.vec[0])
 
     def __str__(self):
-        return "KnotVector: " + str(self.vec)
+        l = []
+        for knot in self.vec:
+            l.append('%.2f' % knot)
+        s = '[%s]' % (', '.join(l))
+        return "KnotVector: %s" % s
 
     def at(self, i):
         return self.vec[i]
@@ -412,7 +423,12 @@ class KnotVector(object):
         return 0    # equal
 
     def __eq__(self, other):
-        return self.vec == other.vec
+        if len(self.vec) != len(other.vec):
+            return False
+        for i, j in zip(self.vec, other.vec):
+            if not float_equals(i, j):
+                return False
+        return True
 
     def __ne__(self, other):
         return not (self == other)
@@ -430,7 +446,7 @@ class Point(object):
         return p
 
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+        return float_equals(self.x, other.x) and float_equals(self.y, other.y)
 
     def __cmp__(self, other):
         """
