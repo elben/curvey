@@ -11,7 +11,7 @@ class TestBSpline(unittest.TestCase):
         self.cp5 = ControlPoint(Point(2, 1), knots=[3,4,4])
         self.cp6 = ControlPoint(Point(0, 2), knots=[4,4,4])
         self.bs1 = BSpline(points=[self.cp1, self.cp2, self.cp3, self.cp4,
-            self.cp5, self.cp6], knotvec=[0,0,0,1,3,4,4,4])
+            self.cp5, self.cp6], knotvec=[0,0,0,1,3,4,4,4], degree=3)
 
     def test_de_boor_exp(self):
         cp1 = ControlPoint(Point(0, 0))
@@ -38,10 +38,42 @@ class TestBSpline(unittest.TestCase):
                 KnotVector([0,0,0,0.5,0.5,0.5, 1,1,1,1.5,1.5,1.5,
                     2,2,2,2.5,2.5,2.5,3,3,3,3.5,3.5,3.5,4,4,4]))
 
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[0].x(), 0))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[0].y(), 0))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[-1].x(), 4))
-        self.assertTrue(epsilon_equals(self.bs1._internal_points[-1].y(), 0))
+        self.assertTrue(epsilon_equals(self.bs1._internal_points[0].x(), 1))
+        self.assertTrue(epsilon_equals(self.bs1._internal_points[0].y(), 3))
+        self.assertTrue(epsilon_equals(self.bs1._internal_points[-1].x(), 0))
+        self.assertTrue(epsilon_equals(self.bs1._internal_points[-1].y(), 2))
+
+    def test_de_boor_cubic_2(self):
+        cp1 = ControlPoint(Point(1, 3))
+        cp2 = ControlPoint(Point(2, 4))
+        cp3 = ControlPoint(Point(6, 5))
+        cp4 = ControlPoint(Point(5, 1))
+        cp5 = ControlPoint(Point(2, 1))
+        cp6 = ControlPoint(Point(0, 2))
+
+        bs = BSpline(points=[cp1, cp2, cp3, cp4, cp5, cp6], degree=3)
+        bs.replace_knot_vector([0,1,2,3,4,5,6,7])
+        bs._de_boor()
+
+        # TODO test
+
+
+    def test_de_boor_cubic_3(self):
+        cp1 = ControlPoint(Point(0, 0))
+        cp2 = ControlPoint(Point(2, 4))
+        cp3 = ControlPoint(Point(6, 4))
+        cp4 = ControlPoint(Point(8, 0))
+
+        bs = BSpline(points=[cp1, cp2, cp3, cp4], degree=3)
+        bs.replace_knot_vector([0,1,2,3,4,5])
+        bs._de_boor()
+
+        control_points, points = bs.render()
+        self.assertFalse(epsilon_equals(points[0].x(), 0))
+        self.assertFalse(epsilon_equals(points[0].y(), 0))
+        self.assertFalse(epsilon_equals(points[2].x(), 8))
+        self.assertFalse(epsilon_equals(points[2].y(), 0))
+        # TODO test
 
     def test_is_invalid_if_not_enough_points(self):
         bs = BSpline(degree=4)
