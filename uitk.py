@@ -98,13 +98,15 @@ dt=0.2
         self.draw()
 
     def draw(self):
+        magic = -10
 
         # Draw control points
-        for cp in self.control_points:
+        for i, cp in enumerate(self.control_points):
             x, y = tuple(cp)
             radius = 4 # pixels
             self.canvas.create_oval(x-radius+self.dw, y-radius+self.dh,
                     x+radius+self.dw, y+radius+self.dh, fill="#ff0000")
+            self.canvas.create_text(x+self.dw, y+self.dh+magic, text=str(i))
 
         # Draw points
         for i in range(len(self.draw_points)-1):
