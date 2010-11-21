@@ -47,11 +47,14 @@ class UI:
         self.clearbutton.bind('<Button-1>', self.clear)
 
         self.canvas = Canvas(self.master, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
+        self.image = PhotoImage(file='axis.gif')
+        self.canvas.create_image(320, 160, image=self.image)
         self.canvas.pack()
 
     def clear(self, event=None):
         self.canvas.destroy()
         self.canvas = Canvas(self.master, width=self.canvas_w, height=self.canvas_h, bd=4, background="#cccccc")
+        self.canvas.create_image(320, 160, image=self.image)
         self.canvas.pack()
 
     def show(self):
