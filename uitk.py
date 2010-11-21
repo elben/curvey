@@ -5,16 +5,20 @@ from libcurvey import *
 from util import *
 
 class UI:
-    default_control_points = """(1, 3)
+    default_control_points = """degree=3
+(1, 3)
 (2, 4)
 (6, 5)
 (5, 1)
 (2, 1)
 (0, 2)
-[0,0,0,1,3,4,4,4]
-"""
-    def __init__(self, control_points, draw_points, background_color, point_color, line_color,
-            canvas_w, canvas_h, plane_w=None, plane_h=None):
+[0,0,0,1,3,4,4,4]"""
+
+    def __init__(self, control_points=None, draw_points=None, degree=3,
+            background_color="#cccccc", point_color="#ff0000",
+            line_color="#009900",
+            canvas_w=640, canvas_h=480, plane_w=480, plane_h=360):
+        self.degree = degree
         self.control_points = control_points
         self.draw_points = draw_points
         self.background_color = background_color
@@ -41,17 +45,20 @@ class UI:
         self.renderbutton.pack()
         self.renderbutton.bind('<Button-1>', self.render)
 
+    def show(self):
+        mainloop()
+
     def render(self, event):
         # Grab data.
         s = self.editbox.get("0.0", "end")
         lines = s.split('\n')
-        control_points, knotvecs = curvey.parse_data(lines)
+        control_points, knotvecs, self.degree = curvey.parse_data(lines)
 
         print "control points", control_points
         print "knotvecs", knotvecs
 
         # Build BSpline.
-        bspline = BSpline()
+        bspline = BSpline(degree=self.degree)
         for cp in control_points:
             p = ControlPoint(Point(cp[0], cp[1]))
             bspline.insert_control_point(p)
@@ -60,6 +67,7 @@ class UI:
         # Draw.
         wrong_control_points, wrong_points = bspline.render()
         control_points = []
+        print "wrong", wrong_points
         points = []
         for cp in wrong_control_points:
             control_points.append([cp.x(), cp.y()])
@@ -93,6 +101,4 @@ class UI:
             x1, y1 = tuple(self.draw_points[i])
             x2, y2 = tuple(self.draw_points[i+1])
             self.canvas.create_line(x1+self.dw, y1+self.dh, x2+self.dw, y2+self.dh, fill="blue")
-
-        mainloop()
 
