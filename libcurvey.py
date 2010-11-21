@@ -28,7 +28,8 @@ class BSpline(object):
     def render(self, dt=None):
         """
         Returns a tuple containing two items:
-            The list of control points.
+            The list of control points (as a tuple).
+            The list of control points in polar coordinates.
             The list of points to be connected to represent the curve.
 
         Throws InvalidBSplineException is the spline is not in a valid state for
@@ -39,17 +40,19 @@ class BSpline(object):
         """
         dt = dt if dt else self.dt
         control_points = []
+        control_point_polars = []
         points = []
 
         for p in self.user_points:
             x, y = p.x(), p.y()
+            control_point_polars.append(p.polar().knots())
             control_points.append((x,y))
 
         for p in self._internal_points:
             x, y = p.x(), p.y()
             points.append((x,y))
 
-        return control_points, points
+        return control_points, control_point_polars, points
 
     def insert_control_point(self, cp):
         """
@@ -314,6 +317,9 @@ class KnotVector(object):
 
     def degree(self):
         return len(self.vec)
+
+    def knots(self):
+        return tuple(self.vec)
 
     @staticmethod
     def similar(*args):

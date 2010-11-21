@@ -21,6 +21,7 @@ dt=0.2
         self.degree = degree
         self.dt = None
         self.control_points = control_points
+        self.control_point_polars = []
         self.draw_points = draw_points
         self.background_color = background_color
         self.point_color = point_color
@@ -78,7 +79,7 @@ dt=0.2
         bspline.replace_knot_vector(knotvecs[0])
 
         # Scale and translate points for drawing.
-        control_poitns, points = bspline.render()
+        control_points, self.control_point_polars, points = bspline.render()
 
         self.control_points = transform_for_canvas(control_points,
                 self.plane_w, self.plane_h, 32, 32)
@@ -91,22 +92,31 @@ dt=0.2
         # Draw.
         self.draw()
 
-    def draw(self):
+    def draw_labels(self):
         magic = -10
 
+        for i, cp in enumerate(self.control_points):
+            x, y = tuple(cp)
+            
+            polar = str(self.control_point_polars[i])
+            label = "%d %s" % (i, polar)
+            self.canvas.create_text(x+self.dw, y+self.dh+magic, text=label)
+
+    def draw(self):
         # Draw control points
         for i, cp in enumerate(self.control_points):
             x, y = tuple(cp)
             radius = 4 # pixels
             self.canvas.create_oval(x-radius+self.dw, y-radius+self.dh,
                     x+radius+self.dw, y+radius+self.dh, fill="#ff0000")
-            self.canvas.create_text(x+self.dw, y+self.dh+magic, text=str(i))
 
         # Draw points
         for i in range(len(self.draw_points)-1):
             x1, y1 = tuple(self.draw_points[i])
             x2, y2 = tuple(self.draw_points[i+1])
             self.canvas.create_line(x1+self.dw, y1+self.dh, x2+self.dw, y2+self.dh, fill="blue")
+
+        self.draw_labels()
 
 def main():
     drawui = UI()
