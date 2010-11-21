@@ -7,11 +7,12 @@ from util import *
 DEBUG = False
 
 class BSpline(object):
-    def __init__(self, points=None, knotvec=None, degree=3):
+    def __init__(self, points=None, knotvec=None, degree=3, dt=.5):
         # A list of Points. Listed in order of user insertion.
         # So the curve is rendered based on the order of points.
         self.user_points = points if points else []
         self._internal_points = points if points else []
+        self.dt = dt
 
         if type(knotvec) == type([]):
             self._internal_knotvec = KnotVector(knotvec)
@@ -25,7 +26,7 @@ class BSpline(object):
 
         self.degree = degree
 
-    def render(self, dt=.1):
+    def render(self, dt=None):
         """
         Returns a tuple containing two items:
             The list of control points.
@@ -37,6 +38,7 @@ class BSpline(object):
             Number of control points not matching the number of knots in the
             knot vector. 
         """
+        dt = dt if dt else self.dt
         control_points = self.user_points[:]
         points = self._internal_points[:]
         return control_points, points
@@ -92,7 +94,7 @@ class BSpline(object):
         return (len(self.user_points) > self.degree and
                 len(self.user_knotvec) == len(self.user_points)+self.degree-1)
 
-    def _de_boor(self, dt=.1):
+    def _de_boor(self, dt=None):
         """
         Runs the de Boor algorithm on the spline to calculate the points to be
         rendered on the screen.
@@ -116,6 +118,7 @@ class BSpline(object):
         for i, cp in enumerate(self._internal_points):
             cp.polar(KnotVector(self._internal_knotvec[i:i+self.degree]))
 
+        dt = dt if dt else self.dt
         t = self.user_knotvec.at(self.degree-1) + dt
         t_end = self.user_knotvec.at(-self.degree)
 

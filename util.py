@@ -8,7 +8,8 @@ def epsilon_less_than(f1, f2, epsilon=0.0001):
 
 def printar(headline, points):
     print
-    print >> sys.stderr, headline
+    #print >> sys.stderr, headline
+    print headline
     for p in points:
-        print >> sys.stderr, p
-
+        #print >> sys.stderr, p
+        print p

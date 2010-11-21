@@ -54,9 +54,6 @@ class UI:
         lines = s.split('\n')
         control_points, knotvecs, self.degree = curvey.parse_data(lines)
 
-        print "control points", control_points
-        print "knotvecs", knotvecs
-
         # Build BSpline.
         bspline = BSpline(degree=self.degree)
         for cp in control_points:
@@ -67,7 +64,6 @@ class UI:
         # Draw.
         wrong_control_points, wrong_points = bspline.render()
         control_points = []
-        print "wrong", wrong_points
         points = []
         for cp in wrong_control_points:
             control_points.append([cp.x(), cp.y()])
@@ -83,8 +79,8 @@ class UI:
         self.draw_points, minmax = curvey.get_draw_points(points, self.plane_w,
                 self.plane_h, minmax)
 
-        print "control_points", self.control_points
-        print "draw_points", self.draw_points
+        printar("control_points", self.control_points)
+        printar("draw_points", self.draw_points)
         self.draw()
 
     def draw(self):

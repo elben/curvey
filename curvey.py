@@ -7,6 +7,7 @@ def parse_data(lines=None, filename=None):
     is_loading = True
     points = []
     polars = []
+    degree = 0
 
     if filename:
         lines = open(filename, 'r')
