@@ -38,8 +38,17 @@ class BSpline(object):
             knot vector. 
         """
         dt = dt if dt else self.dt
-        control_points = self.user_points[:]
-        points = self._internal_points[:]
+        control_points = []
+        points = []
+
+        for p in self.user_points:
+            x, y = p.x(), p.y()
+            control_points.append((x,y))
+
+        for p in self._internal_points:
+            x, y = p.x(), p.y()
+            points.append((x,y))
+
         return control_points, points
 
     def insert_control_point(self, cp):

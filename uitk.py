@@ -78,13 +78,7 @@ dt=0.2
         bspline.replace_knot_vector(knotvecs[0])
 
         # Scale and translate points for drawing.
-        wrong_control_points, wrong_points = bspline.render()
-        control_points = []
-        points = []
-        for cp in wrong_control_points:
-            control_points.append([cp.x(), cp.y()])
-        for p in wrong_points:
-            points.append([p.x(), p.y()])
+        control_poitns, points = bspline.render()
 
         self.control_points = transform_for_canvas(control_points,
                 self.plane_w, self.plane_h, 32, 32)
