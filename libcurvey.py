@@ -342,12 +342,17 @@ class KnotVector(object):
 
         ia = 0
         while ia < len(acopy.vec):
-            if acopy.vec[ia] in bcopy.vec:
-                ib = bcopy.vec.index(acopy.vec[ia])
-                del acopy.vec[ia]
-                del bcopy.vec[ib]
+            aknot = acopy.vec[ia]
+            for ib, bknot in enumerate(bcopy.vec):
+                if epsilon_equals(aknot, bknot):
+                    del acopy.vec[ia]
+                    del bcopy.vec[ib]
+                    break
             else:
+                # Increment ia only if we did NOT delete an item from acopy. If item
+                # was deleted, then we need to recheck index ia.
                 ia += 1 
+
 
         if len(acopy.vec) != 1 or len(bcopy.vec) != 1:
             raise IllegalKnotVectorException(("""More than one differing knot value. acopy: %s,
