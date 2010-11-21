@@ -1,67 +1,102 @@
 import sys
 import getopt
-import uipygame as ui
+#import uipygame as ui
+import uitk as ui
 
-def parse_data(filename):
-    max_x = -1e100
-    max_y = -1e100
-    min_x = 1e100
-    min_y = 1e100
-
+def parse_data(lines=None, filename=None):
     is_loading = True
     points = []
     polars = []
 
-    f = open(filename, 'r')
-    for line in f:
+    if filename:
+        lines = open(filename, 'r')
+    for line in lines:
         if line[0] == '(':
             point = line.strip().strip('()').split(',')
             point = map(float, point)
-            if point[0] > max_x: max_x = point[0]
-            if point[1] > max_y: max_y = point[1]
-            if point[0] < min_x: min_x = point[0]
-            if point[1] < min_y: min_y = point[1]
             points.append(point)
         elif line[0] == '[':
             polar = line.strip().strip('[]').split(',')
             polar = map(float, point)
             polars.append(point)
     is_loading = False
-    return points, polars, (max_x, max_y, min_x, min_y)
+    return points, polars
 
-def get_draw_points(points, w, h, maxmin=None):
+def flip_points(points, max_y=None):
+    if max_y:
+        for i in range(len(points)):
+            points[i][1] = max_y - points[i][1]
+        return max_y
+
+    max_y = -1e100
+    for i in range(len(points)):
+        if points[i][1] > max_y: max_y = points[i][1]
+    for i in range(len(points)):
+        points[i][1] = max_y - points[i][1]
+    return max_y
+
+def get_draw_points(points, w, h, minmax=None):
+    max_x = -1e100
+    max_y = -1e100
+    min_x = 1e100
+    min_y = 1e100
+
+    epsilon = 10
+
+    if not minmax:
+        minmax = []
+        for p in points:
+            x, y = tuple(p)
+            if x > max_x: max_x = x
+            if x < min_x: min_x = x
+            if y > max_y: max_y = y
+            if y < min_y: min_y = y
+        minmax.append(min_x)
+        minmax.append(min_y)
+        minmax.append(max_x)
+        minmax.append(max_y)
+    else:
+        min_x = minmax[0]
+        min_y = minmax[1]
+        max_x = minmax[2]
+        max_y = minmax[3]
+
+    max_x -= min_x
+    min_x = 0
+    max_y -= min_y
+    min_y = 0
+
     # transform points to drawing canvas positions
-    translate_x = maxmin[2]
-    translate_y = maxmin[3]
-    scale_x = w / maxmin[0]
-    scale_y = h / maxmin[1]
+    scale_x = w / max_x
+    scale_y = h / max_y
 
     draw_points = []
     for p in points:
         x, y = tuple(p)
 
-        x -= translate_x
         x *= scale_x
-        y -= translate_y
         y *= scale_y
+        x = x - min_x + epsilon
+        y = y - min_y + epsilon
 
-        # the canvas starts at top-left, so we need to flip our points
-        y = h - y
         draw_points.append((x,y))
-    return draw_points
+    return draw_points, minmax
 
 def main():
     background_color = (255,255,255)
     line_color = (0,128,0)
     point_color = (128,0,0)
 
-    control_points, knotvec, maxmin = parse_data(sys.argv[1])
-    points, polars, maxmin = parse_data(sys.argv[2])
+    control_points, knotvec = parse_data(filename=sys.argv[1])
+    points, polars = parse_data(filename=sys.argv[2])
 
     window_w, window_h = 640.0, 480.0
     w, h = window_w - 40.0, window_h - 40.0
-    draw_points = get_draw_points(points, w, h, maxmin)
-    control_points = get_draw_points(control_points, w, h, maxmin)
+    max_y = flip_points(control_points)
+    flip_points(points, max_y=max_y)
+
+    control_points, minmax = get_draw_points(control_points, w, h)
+    draw_points, minmax = get_draw_points(points, w, h, minmax)
 
     ui.draw(control_points, draw_points, background_color, point_color,
             line_color, window_w, window_h)
