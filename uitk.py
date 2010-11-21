@@ -16,7 +16,7 @@ class UI:
     def __init__(self, control_points=None, draw_points=None, degree=3,
             background_color="#cccccc", point_color="#ff0000",
             line_color="#009900",
-            canvas_w=640, canvas_h=320, plane_w=480, plane_h=240):
+            canvas_w=640, canvas_h=320, plane_w=640, plane_h=320):
         self.degree = degree
         self.control_points = control_points
         self.draw_points = draw_points
@@ -84,17 +84,14 @@ class UI:
         for p in wrong_points:
             points.append([p.x(), p.y()])
 
+        self.control_points = transform_for_canvas(control_points,
+                self.plane_w, self.plane_h, 32, 32)
+        self.draw_points = transform_for_canvas(points, self.plane_w,
+                self.plane_h, 32, 32)
 
-        max_y = flip_points(control_points)
-        flip_points(points, max_y=max_y)
+        self.control_points = mirror_y(self.control_points, about_y=160)
+        self.draw_points = mirror_y(self.draw_points, about_y=160)
 
-        self.control_points, minmax = get_draw_points(control_points,
-                self.plane_w, self.plane_h)
-        self.draw_points, minmax = get_draw_points(points, self.plane_w,
-                self.plane_h, minmax)
-
-        printar("control_points", self.control_points)
-        printar("draw_points", self.draw_points)
         self.draw()
 
     def draw(self):
