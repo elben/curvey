@@ -90,16 +90,16 @@ def main():
     control_points, knotvec = parse_data(filename=sys.argv[1])
     points, polars = parse_data(filename=sys.argv[2])
 
-    window_w, window_h = 640.0, 480.0
-    w, h = window_w - 40.0, window_h - 40.0
+    canvas_w, canvas_h = 640.0, 480.0
+    plane_w, plane_h = 480, 360
     max_y = flip_points(control_points)
     flip_points(points, max_y=max_y)
 
-    control_points, minmax = get_draw_points(control_points, w, h)
-    draw_points, minmax = get_draw_points(points, w, h, minmax)
+    control_points, minmax = get_draw_points(control_points, plane_w, plane_h)
+    draw_points, minmax = get_draw_points(points, plane_w, plane_h, minmax)
 
     ui.draw(control_points, draw_points, background_color, point_color,
-            line_color, window_w, window_h)
+            line_color, canvas_w, canvas_h, plane_w, plane_h)
 
 if __name__ == '__main__':
     main()
