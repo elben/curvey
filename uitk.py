@@ -1,6 +1,5 @@
 from Tkinter import *
 import ScrolledText
-import curvey
 from libcurvey import *
 from util import *
 
@@ -17,7 +16,7 @@ class UI:
     def __init__(self, control_points=None, draw_points=None, degree=3,
             background_color="#cccccc", point_color="#ff0000",
             line_color="#009900",
-            canvas_w=640, canvas_h=480, plane_w=480, plane_h=360):
+            canvas_w=640, canvas_h=320, plane_w=480, plane_h=240):
         self.degree = degree
         self.control_points = control_points
         self.draw_points = draw_points
@@ -34,8 +33,6 @@ class UI:
 
         self.master = Tk()
         self.master.title("Curvey")
-        self.canvas = Canvas(self.master, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
-        self.canvas.pack()
 
         self.editbox = Text(self.master, bg='#cccccc', borderwidth=4)
         self.editbox.pack()
@@ -45,14 +42,28 @@ class UI:
         self.renderbutton.pack()
         self.renderbutton.bind('<Button-1>', self.render)
 
+        self.clearbutton = Button(self.master, text="Clear")
+        self.clearbutton.pack()
+        self.clearbutton.bind('<Button-1>', self.clear)
+
+        self.canvas = Canvas(self.master, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
+        self.canvas.pack()
+
+    def clear(self, event=None):
+        self.canvas.destroy()
+        self.canvas = Canvas(self.master, width=self.canvas_w, height=self.canvas_h, bd=4, background="#cccccc")
+        self.canvas.pack()
+
     def show(self):
         mainloop()
 
-    def render(self, event):
+    def render(self, event=None):
+        self.clear()
+
         # Grab data.
         s = self.editbox.get("0.0", "end")
         lines = s.split('\n')
-        control_points, knotvecs, self.degree = curvey.parse_data(lines)
+        control_points, knotvecs, self.degree = parse_data(lines)
 
         # Build BSpline.
         bspline = BSpline(degree=self.degree)
@@ -71,12 +82,12 @@ class UI:
             points.append([p.x(), p.y()])
 
 
-        max_y = curvey.flip_points(control_points)
-        curvey.flip_points(points, max_y=max_y)
+        max_y = flip_points(control_points)
+        flip_points(points, max_y=max_y)
 
-        self.control_points, minmax = curvey.get_draw_points(control_points,
+        self.control_points, minmax = get_draw_points(control_points,
                 self.plane_w, self.plane_h)
-        self.draw_points, minmax = curvey.get_draw_points(points, self.plane_w,
+        self.draw_points, minmax = get_draw_points(points, self.plane_w,
                 self.plane_h, minmax)
 
         printar("control_points", self.control_points)

@@ -1,6 +1,5 @@
-from curvey import *
 from libcurvey import *
-
+from util import *
 
 def main():
     control_points, knotvec, degree = parse_data(filename=sys.argv[1])
