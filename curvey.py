@@ -68,7 +68,7 @@ def get_draw_points(points, w, h, minmax=None):
 
     # transform points to drawing canvas positions
     scale_x = w / max_x
-    scale_y = h / max_y
+    scale_y = scale_x    # currently, we force that scales are equal
 
     draw_points = []
     for p in points:
