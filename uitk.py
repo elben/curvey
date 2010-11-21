@@ -75,7 +75,7 @@ class UI:
             bspline.insert_control_point(p)
         bspline.replace_knot_vector(knotvecs[0])
 
-        # Draw.
+        # Scale and translate points for drawing.
         wrong_control_points, wrong_points = bspline.render()
         control_points = []
         points = []
@@ -92,6 +92,7 @@ class UI:
         self.control_points = mirror_y(self.control_points, about_y=160)
         self.draw_points = mirror_y(self.draw_points, about_y=160)
 
+        # Draw.
         self.draw()
 
     def draw(self):
