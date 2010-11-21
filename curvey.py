@@ -89,24 +89,3 @@ def get_draw_points(points, w, h, minmax=None):
         draw_points.append((x,y))
     return draw_points, minmax
 
-def main():
-    background_color = (255,255,255)
-    line_color = (0,128,0)
-    point_color = (128,0,0)
-
-    #control_points, knotvec = parse_data(filename=sys.argv[1])
-    #points, polars = parse_data(filename=sys.argv[2])
-
-    canvas_w, canvas_h = 640.0, 480.0
-    plane_w, plane_h = 480, 360
-    #max_y = flip_points(control_points)
-    #flip_points(points, max_y=max_y)
-
-    #control_points, minmax = get_draw_points(control_points, plane_w, plane_h)
-    #draw_points, minmax = get_draw_points(points, plane_w, plane_h, minmax)
-
-    drawui = ui.UI()
-    drawui.show()
-
-if __name__ == '__main__':
-    main()

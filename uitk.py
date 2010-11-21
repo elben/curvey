@@ -98,3 +98,9 @@ class UI:
             x2, y2 = tuple(self.draw_points[i+1])
             self.canvas.create_line(x1+self.dw, y1+self.dh, x2+self.dw, y2+self.dh, fill="blue")
 
+def main():
+    drawui = UI()
+    drawui.show()
+
+if __name__ == '__main__':
+    main()
