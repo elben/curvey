@@ -1,15 +1,18 @@
 from Tkinter import *
 import ScrolledText
+import curvey
+from libcurvey import *
+from util import *
 
 class UI:
     default_control_points = """(1, 3)
-    (2, 4)
-    (6, 5)
-    (5, 1)
-    (2, 1)
-    (0, 2)
-    [0,0,0,1,3,4,4,4]
-    """
+(2, 4)
+(6, 5)
+(5, 1)
+(2, 1)
+(0, 2)
+[0,0,0,1,3,4,4,4]
+"""
     def __init__(self, control_points, draw_points, background_color, point_color, line_color,
             canvas_w, canvas_h, plane_w=None, plane_h=None):
         self.control_points = control_points
@@ -36,7 +39,25 @@ class UI:
 
         self.renderbutton = Button(self.master, text="Render")
         self.renderbutton.pack()
-        #self.renderbutton.bind('<Button-1>', render_callback) # TODO
+        self.renderbutton.bind('<Button-1>', self.render)
+
+    def render(self, event):
+        # Grab data.
+        s = self.editbox.get("0.0", "end")
+        lines = s.split('\n')
+        control_points, knotvecs = curvey.parse_data(lines)
+
+        print "control points", control_points
+        print "knotvecs", knotvecs
+
+        # Build BSpline.
+        bspline = BSpline()
+        for cp in control_points:
+            p = ControlPoint(Point(cp[0], cp[1]))
+            bspline.insert_control_point(p)
+        bspline.replace_knot_vector(knotvecs[0])
+
+        # Draw.
 
     def draw(self):
 

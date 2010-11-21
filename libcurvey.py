@@ -66,6 +66,10 @@ class BSpline(object):
         self.user_points.insert(i, cpnew)
         self._de_boor()
 
+    def replace_control_points(self, control_points):
+        self.user_points = control_points
+        self._de_boor()
+
     def replace_knot_vector(self, knotvec):
         """
         Replaces the spline's current knot vector with knotvec.

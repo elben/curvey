@@ -11,14 +11,16 @@ def parse_data(lines=None, filename=None):
     if filename:
         lines = open(filename, 'r')
     for line in lines:
-        if line[0] == '(':
+        if len(line) < 1:
+            continue
+        elif line[0] == '(':
             point = line.strip().strip('()').split(',')
             point = map(float, point)
             points.append(point)
         elif line[0] == '[':
             polar = line.strip().strip('[]').split(',')
-            polar = map(float, point)
-            polars.append(point)
+            polar = map(float, polar)
+            polars.append(polar)
     is_loading = False
     return points, polars
 
