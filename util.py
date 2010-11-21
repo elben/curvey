@@ -6,6 +6,9 @@ def epsilon_equals(f1, f2, epsilon=0.0001):
 def epsilon_less_than(f1, f2, epsilon=0.0001):
     return f1 < (f2-epsilon)
 
+def epsilon_less_equal_than(f1, f2, epsilon=0.0001):
+    return epsilon_less_than(f1, f2) or epsilon_equals(f1, f2)
+
 def printar(headline, points):
     print
     #print >> sys.stderr, headline

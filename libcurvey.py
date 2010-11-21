@@ -119,7 +119,7 @@ class BSpline(object):
             cp.polar(KnotVector(self._internal_knotvec[i:i+self.degree]))
 
         dt = dt if dt else self.dt
-        t = self.user_knotvec.at(self.degree-1) + dt
+        t = self.user_knotvec.at(self.degree-1)
         t_end = self.user_knotvec.at(-self.degree)
 
         if DEBUG:
@@ -128,23 +128,18 @@ class BSpline(object):
             print "t start " + str(t)
             print "t end " + str(t_end)
 
-        while epsilon_less_than(t, t_end):
+        drawing_points = []
+        while epsilon_less_equal_than(t, t_end):
             needed_knots = self.degree - self._count_knots(t) 
             for i in range(needed_knots):
                 self._insert_knot(t)
                 if DEBUG:
                     printar("internal knots now", self._internal_knotvec)
+            drawing_points.append(self._polar_to_control_point(KnotVector([t]*self.degree)))
             t += dt
-        
-    def _count_knots(self, knot):
-        """
-        Returns the number of times knot is found in the internal knot vector.
-        """
-        count = 0
-        for k in self._internal_knotvec:
-            if k == knot:
-                count += 1
-        return count
+        printar("Drawing Points", drawing_points)
+        self._internal_points = drawing_points
+
 
     def _insert_knot(self, knot):
         """
@@ -216,6 +211,16 @@ class BSpline(object):
             if polar == cp.polar():
                 return cp
         raise Exception("ControlPoint not found for %s." % (polar,))
+        
+    def _count_knots(self, knot):
+        """
+        Returns the number of times knot is found in the internal knot vector.
+        """
+        count = 0
+        for k in self._internal_knotvec:
+            if k == knot:
+                count += 1
+        return count
 
 class ControlPoint(object):
     def __init__(self, point=None, x=None, y=None, knots=None):
@@ -423,8 +428,8 @@ class KnotVector(object):
         other_knots = other.sort_copy()
         
         for v1, v2 in zip(self.vec, other_knots.vec):
-            if v1 != v2:
-                return 1 if v1 - v2 > 0 else -1
+            if not epsilon_equals(v1, v2):
+                return -1 if epsilon_less_than(v1, v2) else 1
         return 0    # equal
 
     def __eq__(self, other):
