@@ -21,7 +21,8 @@ def parse_data(lines=None, filename=None):
     is_loading = True
     points = []
     polars = []
-    degree = 0
+    degree = None
+    dt = None
 
     if filename:
         lines = open(filename, 'r')
@@ -36,11 +37,14 @@ def parse_data(lines=None, filename=None):
             polar = line.strip().strip('[]').split(',')
             polar = map(float, polar)
             polars.append(polar)
-        elif line[0] == 'd':
+        elif line.startswith("degree"):
             degree = line.strip().split('=')
             degree = int(degree[1])
+        elif line.startswith("dt"):
+            dt = line.strip().split('=')
+            dt = float(dt[1])
     is_loading = False
-    return points, polars, degree
+    return points, polars, degree, dt
 
 def mirror_y(points, about_y):
     mirrored = []

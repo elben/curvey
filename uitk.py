@@ -5,6 +5,7 @@ from util import *
 
 class UI:
     default_control_points = """degree=3
+dt=0.2
 (1, 3)
 (2, 4)
 (6, 5)
@@ -18,6 +19,7 @@ class UI:
             line_color="#009900",
             canvas_w=640, canvas_h=320, plane_w=640, plane_h=320):
         self.degree = degree
+        self.dt = None
         self.control_points = control_points
         self.draw_points = draw_points
         self.background_color = background_color
@@ -66,10 +68,10 @@ class UI:
         # Grab data.
         s = self.editbox.get("0.0", "end")
         lines = s.split('\n')
-        control_points, knotvecs, self.degree = parse_data(lines)
+        control_points, knotvecs, self.degree, self.dt = parse_data(lines)
 
         # Build BSpline.
-        bspline = BSpline(degree=self.degree)
+        bspline = BSpline(degree=self.degree,dt=self.dt)
         for cp in control_points:
             p = ControlPoint(Point(cp[0], cp[1]))
             bspline.insert_control_point(p)

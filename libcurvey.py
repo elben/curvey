@@ -7,12 +7,13 @@ from util import *
 DEBUG = False
 
 class BSpline(object):
-    def __init__(self, points=None, knotvec=None, degree=None, dt=.2):
+    def __init__(self, points=None, knotvec=None, degree=None, dt=None):
         # A list of Points. Listed in order of user insertion.
         # So the curve is rendered based on the order of points.
         self.user_points = points if points else []
         self._internal_points = points if points else []
-        self.dt = dt
+        self.degree = degree
+        self.dt = dt if dt else 0.2
 
         if type(knotvec) == type([]):
             self._internal_knotvec = KnotVector(knotvec)
@@ -23,8 +24,6 @@ class BSpline(object):
         else:
             self._internal_knotvec = KnotVector()
             self.user_knotvec = KnotVector()
-
-        self.degree = degree
 
     def render(self, dt=None):
         """

@@ -2,7 +2,7 @@ from libcurvey import *
 from util import *
 
 def main():
-    control_points, knotvec, degree = parse_data(filename=sys.argv[1])
+    control_points, knotvec, degree, dt = parse_data(filename=sys.argv[1])
     printar("Parsed Control Points", control_points)
     printar("Parsed Knot Vector", knotvec)
     bspline = BSpline(degree=degree)
@@ -13,6 +13,8 @@ def main():
     control_points, points = bspline.render()
     print
     print "Parsed Degree", degree
+    print
+    print "Parsed dt", dt
     print
     print "Valid?", bspline.is_valid()
     printar("Control Points", control_points)
