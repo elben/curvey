@@ -7,7 +7,7 @@ from util import *
 DEBUG = False
 
 class BSpline(object):
-    def __init__(self, points=None, knotvec=None, degree=3, dt=.5):
+    def __init__(self, points=None, knotvec=None, degree=None, dt=.2):
         # A list of Points. Listed in order of user insertion.
         # So the curve is rendered based on the order of points.
         self.user_points = points if points else []
