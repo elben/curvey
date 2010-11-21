@@ -27,8 +27,9 @@ class BSpline(object):
 
     def render(self, dt=.1):
         """
-        Return list of x, y discrete points on the spline. This is the points
-        that is to be rendered on the screen.
+        Returns a tuple containing two items:
+            The list of control points.
+            The list of points to be connected to represent the curve.
 
         Throws InvalidBSplineException is the spline is not in a valid state for
         rendering. Possible invalid states:
@@ -36,7 +37,9 @@ class BSpline(object):
             Number of control points not matching the number of knots in the
             knot vector. 
         """
-        pass
+        control_points = self.user_points[:]
+        points = self._internal_points[:]
+        return control_points, points
 
     def insert_control_point(self, cp):
         """

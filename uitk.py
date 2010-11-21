@@ -58,6 +58,26 @@ class UI:
         bspline.replace_knot_vector(knotvecs[0])
 
         # Draw.
+        wrong_control_points, wrong_points = bspline.render()
+        control_points = []
+        points = []
+        for cp in wrong_control_points:
+            control_points.append([cp.x(), cp.y()])
+        for p in wrong_points:
+            points.append([p.x(), p.y()])
+
+
+        max_y = curvey.flip_points(control_points)
+        curvey.flip_points(points, max_y=max_y)
+
+        self.control_points, minmax = curvey.get_draw_points(control_points,
+                self.plane_w, self.plane_h)
+        self.draw_points, minmax = curvey.get_draw_points(points, self.plane_w,
+                self.plane_h, minmax)
+
+        print "control_points", self.control_points
+        print "draw_points", self.draw_points
+        self.draw()
 
     def draw(self):
 
