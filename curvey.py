@@ -98,8 +98,9 @@ def main():
     control_points, minmax = get_draw_points(control_points, plane_w, plane_h)
     draw_points, minmax = get_draw_points(points, plane_w, plane_h, minmax)
 
-    ui.draw(control_points, draw_points, background_color, point_color,
+    drawui = ui.UI(control_points, draw_points, background_color, point_color,
             line_color, canvas_w, canvas_h, plane_w, plane_h)
+    drawui.draw()
 
 if __name__ == '__main__':
     main()
