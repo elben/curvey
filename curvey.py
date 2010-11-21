@@ -1,16 +1,13 @@
 import sys
 import getopt
-import pygame
-import pygame.gfxdraw
-pygame.init()
-
-max_x = -1e100
-max_y = -1e100
-min_x = 1e100
-min_y = 1e100
+import uipygame as ui
 
 def parse_data(filename):
-    global max_x, max_y, min_x, min_y
+    max_x = -1e100
+    max_y = -1e100
+    min_x = 1e100
+    min_y = 1e100
+
     is_loading = True
     points = []
     polars = []
@@ -30,14 +27,14 @@ def parse_data(filename):
             polar = map(float, point)
             polars.append(point)
     is_loading = False
-    return points, polars
+    return points, polars, (max_x, max_y, min_x, min_y)
 
-def get_draw_points(points, w, h):
+def get_draw_points(points, w, h, maxmin=None):
     # transform points to drawing canvas positions
-    translate_x = min_x
-    translate_y = min_y
-    scale_x = w / max_x
-    scale_y = h / max_y
+    translate_x = maxmin[2]
+    translate_y = maxmin[3]
+    scale_x = w / maxmin[0]
+    scale_y = h / maxmin[1]
 
     draw_points = []
     for p in points:
@@ -58,32 +55,16 @@ def main():
     line_color = (0,128,0)
     point_color = (128,0,0)
 
-    control_points, knotvec = parse_data(sys.argv[1])
-    points, polars = parse_data(sys.argv[2])
+    control_points, knotvec, maxmin = parse_data(sys.argv[1])
+    points, polars, maxmin = parse_data(sys.argv[2])
 
     window_w, window_h = 640.0, 480.0
     w, h = window_w - 40.0, window_h - 40.0
-    draw_points = get_draw_points(points, w, h)
-    control_points = get_draw_points(control_points, w, h)
+    draw_points = get_draw_points(points, w, h, maxmin)
+    control_points = get_draw_points(control_points, w, h, maxmin)
 
-    #create the screen
-    window = pygame.display.set_mode((window_w, window_h)) 
-    window.fill(background_color)
-
-    # draw control points
-    for cp in control_points:
-        pygame.gfxdraw.aacircle(window, int(cp[0]), int(cp[1]), 4, point_color)
-
-    # draw line segments
-    pygame.draw.aalines(window, line_color, False, draw_points, 1)
-    pygame.display.flip() 
-
-    while True: 
-       for event in pygame.event.get(): 
-          if event.type == pygame.QUIT: 
-              sys.exit(0) 
-          #else: 
-              #print event 
+    ui.draw(control_points, draw_points, background_color, point_color,
+            line_color, window_w, window_h)
 
 if __name__ == '__main__':
     main()
