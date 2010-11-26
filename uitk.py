@@ -118,9 +118,9 @@ dt=0.2
 
         self.draw_labels()
 
-def main():
+def main(argv):
     drawui = UI()
     drawui.show()
 
 if __name__ == '__main__':
-    main()
+    main([])

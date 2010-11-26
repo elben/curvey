@@ -1,8 +1,9 @@
 from libcurvey import *
 from util import *
+import uitk
 
-def main():
-    control_points, knotvec, degree, dt = parse_data(filename=sys.argv[1])
+def main(argv):
+    control_points, knotvec, degree, dt = parse_data(filename=argv[1])
     printar("Parsed Control Points", control_points)
     printar("Parsed Knot Vector", knotvec)
     bspline = BSpline(degree=degree)
