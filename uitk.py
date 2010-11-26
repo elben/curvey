@@ -41,20 +41,25 @@ dt=0.2
         self.editbox.pack()
         self.editbox.insert('0.0', UI.default_control_points)
 
+        self.drawing_labels = False
+        self.draw_labels_checkbox = Checkbutton(self.master, text="Control point labels")
+        self.draw_labels_checkbox.pack()
+        self.draw_labels_checkbox.bind('<Button-1>', self.draw_labels_cb)
+        
         self.renderbutton = Button(self.master, text="Render")
         self.renderbutton.pack()
-        self.renderbutton.bind('<Button-1>', self.render)
+        self.renderbutton.bind('<Button-1>', self.render_cb)
 
         self.clearbutton = Button(self.master, text="Clear")
         self.clearbutton.pack()
-        self.clearbutton.bind('<Button-1>', self.clear)
+        self.clearbutton.bind('<Button-1>', self.clear_cb)
 
         self.canvas = Canvas(self.master, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
         self.image = PhotoImage(file='axis.gif')
         self.canvas.create_image(320, 160, image=self.image)
         self.canvas.pack()
 
-    def clear(self, event=None):
+    def clear_cb(self, event=None):
         self.canvas.destroy()
         self.canvas = Canvas(self.master, width=self.canvas_w, height=self.canvas_h, bd=4, background="#cccccc")
         self.canvas.create_image(320, 160, image=self.image)
@@ -63,8 +68,11 @@ dt=0.2
     def show(self):
         mainloop()
 
-    def render(self, event=None):
-        self.clear()
+    def draw_labels_cb(self, event=None):
+        self.drawing_labels = not self.drawing_labels
+
+    def render_cb(self, event=None):
+        self.clear_cb()
 
         # Grab data.
         s = self.editbox.get("0.0", "end")
@@ -116,7 +124,8 @@ dt=0.2
             x2, y2 = tuple(self.draw_points[i+1])
             self.canvas.create_line(x1+self.dw, y1+self.dh, x2+self.dw, y2+self.dh, fill="blue")
 
-        self.draw_labels()
+        if self.drawing_labels:
+            self.draw_labels()
 
 def main(argv):
     drawui = UI()
