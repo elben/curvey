@@ -37,33 +37,42 @@ dt=0.2
         self.master = Tk()
         self.master.title("Curvey")
 
-        self.editbox = Text(self.master, bg='#cccccc', borderwidth=4)
-        self.editbox.pack()
-        self.editbox.insert('0.0', UI.default_control_points)
+        self.frame = Frame(self.master)
 
-        self.drawing_labels = False
-        self.draw_labels_checkbox = Checkbutton(self.master, text="Control point labels")
-        self.draw_labels_checkbox.pack()
-        self.draw_labels_checkbox.bind('<Button-1>', self.draw_labels_cb)
+        self.editbox = Text(self.frame, bg='#cccccc', borderwidth=4, width=30,
+                height=30)
+        self.editbox.insert('0.0', UI.default_control_points)
         
-        self.renderbutton = Button(self.master, text="Render")
-        self.renderbutton.pack()
+        self.renderbutton = Button(self.frame, text="Render")
         self.renderbutton.bind('<Button-1>', self.render_cb)
 
-        self.clearbutton = Button(self.master, text="Clear")
-        self.clearbutton.pack()
+        self.drawing_labels = False
+        self.draw_labels_checkbox = Checkbutton(self.frame, text="Control point labels")
+        self.draw_labels_checkbox.bind('<Button-1>', self.draw_labels_cb)
+
+        self.clearbutton = Button(self.frame, text="Clear")
         self.clearbutton.bind('<Button-1>', self.clear_cb)
 
-        self.canvas = Canvas(self.master, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
+        self.canvas = Canvas(self.frame, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
         self.image = PhotoImage(file='axis.gif')
         self.canvas.create_image(320, 160, image=self.image)
-        self.canvas.pack()
+
+        # Grid placements.
+
+        self.frame.grid(row=0, column=0)
+
+        self.editbox.grid(row=2, column=0, columnspan=2)
+        self.canvas.grid(row=2, column=3, columnspan=2)
+
+        self.draw_labels_checkbox.grid(row=0, column=0)
+        self.renderbutton.grid(row=1, column=0)
+        self.clearbutton.grid(row=1, column=1)
 
     def clear_cb(self, event=None):
         self.canvas.destroy()
-        self.canvas = Canvas(self.master, width=self.canvas_w, height=self.canvas_h, bd=4, background="#cccccc")
+        self.canvas = Canvas(self.frame, width=self.canvas_w, height=self.canvas_h, bd=4, background="#cccccc")
         self.canvas.create_image(320, 160, image=self.image)
-        self.canvas.pack()
+        self.canvas.grid(row=2, column=3, columnspan=2)
 
     def show(self):
         mainloop()
