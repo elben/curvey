@@ -29,6 +29,13 @@ dt=0.2
         self.canvas_w = canvas_w
         self.canvas_h = canvas_h
 
+        # Data structures
+
+        # control points drawn on canvas
+        self._canvas_cps = []
+
+        # Tk Widgets
+
         self.master = Tk()
         self.master.title("Curvey")
 
@@ -52,7 +59,9 @@ dt=0.2
         self.image = PhotoImage(file='axis.gif')
         self.canvas.create_image(320, 160, image=self.image)
 
-        self.master.bind_class('Canvas', '<Button-1>', self.canvas_cb)
+        self.master.bind_class('Canvas', '<Button-1>', self.canvas_add_cp_cb)
+        self.master.bind_class('Canvas', '<Double-Button-1>', self.canvas_rm_cp_cb)
+        self.master.bind_class('Canvas', '<Button-2>', self.canvas_move_cp_cb)
 
         # Grid placements.
 
@@ -65,16 +74,32 @@ dt=0.2
         self.renderbutton.grid(row=1, column=0)
         self.clearbutton.grid(row=1, column=1)
 
-    def canvas_cb(self, event):
-        if event.num == 1:
-            self._draw_cp(event.x, event.y)
-            # left mouse button
-            # draw control point at event.x, event.y
-        elif event.num == 2:
-            pass
-            # right mouse button
-            # find control point
-            # delete control point
+    def canvas_rm_cp_cb(self, event):
+        closest = self.canvas.find_closest(event.x, event.y)[0]
+        tags = self.canvas.gettags(closest)
+        if 'cp' not in tags:
+            return
+        self.canvas.delete(closest)
+        self._canvas_cps.remove(closest)
+        print self._canvas_cps
+
+    def canvas_move_cp_cb(self, event):
+        pass
+
+    def canvas_add_cp_cb(self, event):
+        """
+        Add control point callback. Only add control point there is no control
+        points nearby.
+        """
+        halo = 4
+        overlapping = self.canvas.find_overlapping(event.x-halo, event.y-halo,
+                event.x+halo, event.y+halo)
+        cps = self.canvas.find_withtag('cp')
+        overlapping_cps = set(overlapping).intersection(set(cps))
+
+        if not len(overlapping_cps):
+            # No overlapping control points.
+            self._create_cp(event.x, event.y)
 
     def clear_cb(self, event=None):
         self.canvas.destroy()
@@ -149,9 +174,14 @@ dt=0.2
         if self.drawing_labels:
             self.draw_labels()
 
-    def _draw_cp(self, x, y, radius=4):
-        self.canvas.create_oval(x-radius, y-radius,
-                x+radius, y+radius, fill="#ff0000")
+    def _create_cp(self, x, y, radius=4):
+        oval = self._draw_cp(x, y, radius, tags=('cp',))
+        self._canvas_cps.append(oval)
+
+    def _draw_cp(self, x, y, radius=4, tags=None):
+        oval = self.canvas.create_oval(x-radius, y-radius,
+                x+radius, y+radius, fill="#ff0000", tags=tags)
+        return oval
 
 def main(argv):
     drawui = UI()
