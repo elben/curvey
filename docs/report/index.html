@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Curvey - a b-spline sandbox that doesn't suck (as much)</title>
+    <link rel="stylesheet" href="resources/style.css" type="text/css">
+  </head>
+  <body>
+    <div id="structure">
+      <div id="header">
+        <h1>Curvey</h1>
+        <div id="subtitle">A b-spline sandbox that doesn't suck (as much).</div>
+      </div>
+      <div id="abstract" class="section">
+        <h2>Abstract</h2>
+        <p>Gaining an intuitive understanding for b-splines is difficult without
+        directly seeing the effects of different knot vectors and control point
+        positions.</p>
+        <p>Curvey is a b-spline demo that allows the user to specify the degree
+        of the spline, the number of control points, and the knot vector.
+        </p>
+      </div>
+      <div id="background" class="section">
+        <h2>Background</h2>
+        <p>Many applications exist for playing around with
+        b-splines, but they are all limited in one to all of the following
+        ways:</p>
+
+        <ol>
+          <li>A fixed number of control points.</li>
+          <li>Only uniform b-splines.</li>
+          <li>No control of knot vector.</li>
+          <li>Does not use polar notation.</li>
+        </ol>
+
+        <p>Curvey uses the polar notation introduced by Lyle Ramshaw.</p>
+
+      </div>
+      <div id="curvey" class="section">
+        <h2>Curvey</h2>
+
+        <h3>Installing</h3>
+        <p>Curvey depends on Python. It has been tested on Python 2.6. To run
+        the GUI version of Curvey, download the source and type:</p>
+        <div class="source">$ python curvey.py --ui</div>
+
+        <p>You can also give Curvey an input file:</p>
+        <div class="source">$ python curvey.py file</div>
+
+        <h3>Using</h3>
+      </div>
+      <div id="references" class="section">
+        <h2>References</h2>
+        <ol>
+          <li>Thomas W. Sederberg. An Introduction to B-Spline Curves.</li>
+          <li>Fredrik Andersson. Bezier and B-spline Technology. 2003.</li>
+          <li>L Ramshaw. Blossoming: A connect-the-dots approach to splines.</li>
+        </ol>
+      </div>
+    </div>
+  </body>
+<html>

@@ -1,0 +1,36 @@
+body {
+	color: #222222;
+	background: #fff;
+  font-family: arial, verdana, helvatica, sans-serif;
+  font-size: 12pt;
+  line-height: 120%;
+}
+
+h1 {
+  font-size: 48px;
+}
+
+.section h2 {
+  color: #fff;
+  background: #666;
+  padding: 20px 40px;
+  margin-left: -40px;
+}
+
+h3 {
+}
+
+#structure {
+  margin-left: auto;
+  margin-right: auto;
+  width: 600px;
+}
+
+#subtitle {
+}
+
+.source {
+  font-family: 'Bitstream Vera Sans Mono', Courier, monospace;
+  background: #ddd;
+  padding: 20px;
+}
