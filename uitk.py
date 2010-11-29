@@ -52,6 +52,8 @@ dt=0.2
         self.image = PhotoImage(file='axis.gif')
         self.canvas.create_image(320, 160, image=self.image)
 
+        self.master.bind_class('Canvas', '<Button-1>', self.canvas_cb)
+
         # Grid placements.
 
         self.frame.grid(row=0, column=0)
@@ -62,6 +64,17 @@ dt=0.2
         self.draw_labels_checkbox.grid(row=0, column=0, columnspan=2)
         self.renderbutton.grid(row=1, column=0)
         self.clearbutton.grid(row=1, column=1)
+
+    def canvas_cb(self, event):
+        if event.num == 1:
+            self._draw_cp(event.x, event.y)
+            # left mouse button
+            # draw control point at event.x, event.y
+        elif event.num == 2:
+            pass
+            # right mouse button
+            # find control point
+            # delete control point
 
     def clear_cb(self, event=None):
         self.canvas.destroy()
@@ -125,9 +138,7 @@ dt=0.2
         # Draw control points
         for i, cp in enumerate(self.control_points):
             x, y = tuple(cp)
-            radius = 4 # pixels
-            self.canvas.create_oval(x-radius, y-radius,
-                    x+radius, y+radius, fill="#ff0000")
+            self._draw_cp(x, y)
 
         # Draw points
         for i in range(len(self.draw_points)-1):
@@ -137,6 +148,10 @@ dt=0.2
 
         if self.drawing_labels:
             self.draw_labels()
+
+    def _draw_cp(self, x, y, radius=4):
+        self.canvas.create_oval(x-radius, y-radius,
+                x+radius, y+radius, fill="#ff0000")
 
 def main(argv):
     drawui = UI()
