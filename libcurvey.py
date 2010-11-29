@@ -27,7 +27,9 @@ class BSpline(object):
 
     def render(self, dt=None):
         """
-        Returns a tuple containing two items:
+        Runs the de Boor algorithm.
+
+        Returns a tuple containing:
             The list of control points (as a tuple).
             The list of control points in polar coordinates.
             The list of points to be connected to represent the curve.
@@ -38,6 +40,12 @@ class BSpline(object):
             Number of control points not matching the number of knots in the
             knot vector. 
         """
+        
+        if not self.is_valid():
+            return [], [], []
+
+        self._de_boor()
+
         dt = dt if dt else self.dt
         control_points = []
         control_point_polars = []
@@ -63,7 +71,6 @@ class BSpline(object):
         render()-able.
         """
         self.user_points.append(cp)
-        self._de_boor()
     
     def remove_control_point(self, cp):
         """
@@ -71,7 +78,6 @@ class BSpline(object):
         an invalid state.
         """
         self.user_points.remove(cp)
-        self._de_boor()
 
     def replace_control_point(self, cp, cpnew):
         """
@@ -80,11 +86,9 @@ class BSpline(object):
         i = self.user_points.index(cp)
         del self.user_points[i]
         self.user_points.insert(i, cpnew)
-        self._de_boor()
 
     def replace_control_points(self, control_points):
         self.user_points = control_points
-        self._de_boor()
 
     def replace_knot_vector(self, knotvec):
         """
@@ -95,7 +99,6 @@ class BSpline(object):
             knotvec = KnotVector(knotvec)
 
         self.user_knotvec = knotvec
-        self._de_boor()
 
     def is_valid(self):
         """

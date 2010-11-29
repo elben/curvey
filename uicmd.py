@@ -11,7 +11,7 @@ def main(argv):
         bspline.insert_control_point(ControlPoint(Point(cp[0], cp[1])))
     bspline.replace_knot_vector(knotvec[0])
 
-    control_points, points = bspline.render()
+    control_points, control_points_polars, points = bspline.render()
     print
     print "Parsed Degree", degree
     print

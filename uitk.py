@@ -91,6 +91,9 @@ dt=0.2
         bspline.replace_knot_vector(knotvecs[0])
 
         if bspline.is_valid():
+            # Run de Boor to find spline.
+            bspline.render()
+
             # Scale and translate points for drawing.
             control_points, self.control_point_polars, points = bspline.render()
 
