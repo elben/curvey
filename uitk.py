@@ -33,6 +33,7 @@ dt=0.2
 
         # control points drawn on canvas
         self._canvas_cps = []
+        self._canvas_moving_cp = -1 # cp being moved
 
         # Tk Widgets
 
@@ -84,7 +85,26 @@ dt=0.2
         print self._canvas_cps
 
     def canvas_move_cp_cb(self, event):
-        pass
+        if self._canvas_moving_cp != -1:
+            # Place control point.
+            print "coords"
+            coords = self.canvas.coords(self._canvas_moving_cp)
+            dx = coords[0] - coords[2]
+            dy = coords[1] - coords[3]
+            self.canvas.coords(self._canvas_moving_cp, event.x, event.y,
+                    event.x+dx, event.y+dy)
+            self.canvas.itemconfigure(self._canvas_moving_cp, state=NORMAL)
+            self._canvas_moving_cp = -1
+        else:
+            # Start moving control point.
+            closest = self.canvas.find_closest(event.x, event.y)[0]
+            tags = self.canvas.gettags(closest)
+            if 'cp' not in tags:
+                return
+            self._canvas_moving_cp = closest
+
+            self.canvas.itemconfigure(closest, state=HIDDEN)
+
 
     def canvas_add_cp_cb(self, event):
         """
