@@ -6,6 +6,10 @@ body {
   line-height: 120%;
 }
 
+a, a:hover {
+  color: #129900;
+}
+
 h1 {
   font-size: 48px;
 }
@@ -14,12 +18,14 @@ h1 {
   color: #fff;
   background: #333;
   padding: 20px;
+  margin-top: 40px;
 }
 
 .section h3 {
-  color: #666;
-  background: #ddd;
-  padding: 10px 20px;
+  color: #fff;
+  background: #999;
+  padding: 5px 20px;
+  margin-top: 40px;
 }
 
 #structure {
@@ -42,3 +48,6 @@ span.code {
   font-family: 'Bitstream Vera Sans Mono', Courier, monospace;
 }
 
+.formula {
+  text-align: center;
+}
