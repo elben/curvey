@@ -19,11 +19,12 @@ h1 {
   background: #333;
   padding: 20px;
   margin-top: 40px;
+  font-size: 30px;
 }
 
 .section h3 {
   color: #fff;
-  background: #999;
+  background: #333;
   padding: 5px 20px;
   margin-top: 40px;
 }

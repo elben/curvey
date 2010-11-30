@@ -87,7 +87,8 @@
         snapshot:</p>
         <div class="code">$ git clone git://github.com/eshira/curvey.git</div>
 
-        <p>Curvey depends on Python. It has been tested on Python 2.6.</p>
+        <p>Curvey depends on Python an the Tkinter library, which is included in
+        standard Python distributions. It has been tested on Python 2.6.</p>
 
         <h3>Using</h3>
 
@@ -98,6 +99,12 @@
         <div class="code">$ python curvey.py file</div>
 
         <h3>Limitations and Known Bugs</h3>
+
+        <p><b>Not working on OS X 10.6 using Python 2.7</b>. There are screwed up
+        dependencies with OS X 10.6 and Tk, so Python 2.7 does not come with Tk.
+        Use Python 2.6 instead:</p>
+        <div class="code">$ python2.6 curvey.py --ui</div>
+
       </div>
       <div id="references" class="section">
         <h2>References</h2>
