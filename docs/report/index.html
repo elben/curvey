@@ -34,6 +34,24 @@
 
         <p>Curvey uses the polar notation introduced by Lyle Ramshaw.</p>
 
+        <h3>Polar Notation</h3>
+
+        <p>This section introduces b-spline curves using the polar notation.
+        We assume that you have a basic understanding of b-spline cruves.</p>
+
+        <p>A b-spline curve can be defined by a set of control points and a knot
+        vector. Consider the example below:</p>
+
+        <img src="resources/example1.png">
+
+        <p>Here we have a cubic b-spline curve with five control points, <span
+          class="code">(-4,-2), (-2,3), (3,4), (3,-2), (5,-3)</span> and knot
+        vector <span class="code">[0, 0, 0, 1, 2, 2, 2]</span>. The control
+        points are labeled with the control point number and with the polar
+        points. For example, the control point at (3, 4) is the 3rd control
+        point with polar points (0, 1, 2).
+        </p>
+
       </div>
       <div id="curvey" class="section">
         <h2>Curvey</h2>
@@ -41,7 +59,7 @@
         <h3>Installing</h3>
         <p>Curvey depends on Python. It has been tested on Python 2.6. To run
         the GUI version of Curvey, download the source and type:</p>
-        <div class="source">$ python curvey.py --ui</div>
+        <div class="code">$ python curvey.py --ui</div>
 
         <p>You can also give Curvey an input file:</p>
         <div class="source">$ python curvey.py file</div>

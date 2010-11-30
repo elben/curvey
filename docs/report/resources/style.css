@@ -13,24 +13,32 @@ h1 {
 .section h2 {
   color: #fff;
   background: #333;
-  padding: 20px 40px;
-  margin-left: -40px;
+  padding: 20px;
 }
 
-h3 {
+.section h3 {
+  color: #666;
+  background: #ddd;
+  padding: 10px 20px;
 }
 
 #structure {
   margin-left: auto;
   margin-right: auto;
-  width: 600px;
+  width: 640px;
 }
 
 #subtitle {
 }
 
-.source {
+div.code {
   font-family: 'Bitstream Vera Sans Mono', Courier, monospace;
+  color: #666;
   background: #ddd;
   padding: 20px;
 }
+
+span.code {
+  font-family: 'Bitstream Vera Sans Mono', Courier, monospace;
+}
+
