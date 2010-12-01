@@ -87,7 +87,6 @@ dt=0.2
     def canvas_move_cp_cb(self, event):
         if self._canvas_moving_cp != -1:
             # Place control point.
-            print "coords"
             coords = self.canvas.coords(self._canvas_moving_cp)
             dx = coords[0] - coords[2]
             dy = coords[1] - coords[3]
@@ -111,6 +110,10 @@ dt=0.2
         Add control point callback. Only add control point there is no control
         points nearby.
         """
+
+        if self._canvas_moving_cp != -1:
+            # Moving a control point, don't allow user to add new points.
+            return
         halo = 4
         overlapping = self.canvas.find_overlapping(event.x-halo, event.y-halo,
                 event.x+halo, event.y+halo)
