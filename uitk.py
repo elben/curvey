@@ -119,6 +119,8 @@ dt=0.2
                 event.x+halo, event.y+halo)
         cps = self.canvas.find_withtag('cp')
         overlapping_cps = set(overlapping).intersection(set(cps))
+        for cp in cps:
+            print cp, self.canvas.coords(cp)
 
         if not len(overlapping_cps):
             # No overlapping control points.
@@ -158,13 +160,10 @@ dt=0.2
             # Scale and translate points for drawing.
             control_points, self.control_point_polars, points = bspline.render()
 
-            self.control_points = transform_for_canvas(control_points,
+            self.control_points = world2canvas(control_points,
                     self.canvas_w, self.canvas_h, 32, 32)
-            self.draw_points = transform_for_canvas(points, self.canvas_w,
+            self.draw_points = world2canvas(points, self.canvas_w,
                     self.canvas_h, 32, 32)
-
-            self.control_points = mirror_y(self.control_points, about_y=160)
-            self.draw_points = mirror_y(self.draw_points, about_y=160)
 
             # Draw.
             self.draw()

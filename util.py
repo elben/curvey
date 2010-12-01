@@ -46,25 +46,36 @@ def parse_data(lines=None, filename=None):
     is_loading = False
     return points, polars, degree, dt
 
-def mirror_y(points, about_y):
-    mirrored = []
-    for p in points:
-        y = p[1]
-        y -= about_y
-        y = -y
-        y += about_y
-        mirrored.append((p[0], y))
-    return mirrored
+def world2canvas(points, width, height, perpixel_x, perpixel_y):
+    """
+    Converts from world coordinates to canvas coordinates.
 
-def transform_for_canvas(points, width, height, perpixel_x, perpixel_y):
+    In canvas coordiantes, (0,0) is at the top-left corner where +x is right and
+    +y is down.  In world coordinates, (0,0) is in the middle where +x is right and
+    +y is up.
+    """
     halfwidth = width/2
     halfheight = height/2
 
     transformed = []
     for p in points:
-        x = halfwidth + p[0] * perpixel_x
-        y = halfheight + p[1] * perpixel_y
+        x = p[0] * perpixel_y + halfwidth
+        y = halfheight - p[1] * perpixel_y 
         transformed.append((x,y))
 
     return transformed
 
+def canvas2world(points, width, height, perpixel_x, perpixel_y):
+    """
+    Converts from canvas coordinates to world coordinates.
+    """
+    halfwidth = width/2
+    halfheight = height/2
+
+    transformed = []
+    for p in points:
+        x = (p[0] - halfwidth) / perpixel_x
+        y = (halfheight - p[1]) / perpixel_y
+        transformed.append((x,y))
+
+    return transformed
