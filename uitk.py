@@ -122,10 +122,6 @@ dt=0.2
             self._create_cp(event.x, event.y)
 
     def clear_cb(self, event=None):
-        #self.canvas.destroy()
-        #self.canvas = Canvas(self.frame, width=self.canvas_w, height=self.canvas_h, bd=4, background="#cccccc")
-        #self.canvas.create_image(320, 160, image=self.image)
-        #self.canvas.grid(row=2, column=3, columnspan=2)
         self.canvas.delete('line')
         self.canvas.delete('cp')
 
@@ -210,14 +206,8 @@ dt=0.2
         Return the control points draw on screen in world coordinates.
         """
         cps = self.canvas.find_withtag('usercp')
-        cps_world = []
-        for obj in cps:
-            p = find_center(*(self.canvas.coords(obj)))
-            world_points = canvas2world([p], self.canvas_w, self.canvas_h, 32, 32)
-            cps_world.append(world_points[0])
-        return cps_world
-
-        #return map(lambda obj : find_center(*(self.canvas.coords(obj))), cps)
+        cps_canvas = map(lambda obj : find_center(*(self.canvas.coords(obj))), cps)
+        return canvas2world(cps_canvas, self.canvas_w, self.canvas_h, 32, 32)
 
 def main(argv):
     drawui = UI()
