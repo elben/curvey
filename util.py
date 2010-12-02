@@ -18,9 +18,14 @@ def printar(headline, points):
         print p
 
 def parse_data(lines=None, filename=None):
+    """
+    Returns points, polars, degree, and dt.
+    points = [[x,y], ...]
+
+    """
     is_loading = True
     points = []
-    polars = []
+    knotvec = []
     degree = None
     dt = None
 
@@ -36,7 +41,7 @@ def parse_data(lines=None, filename=None):
         elif line[0] == '[':
             polar = line.strip().strip('[]').split(',')
             polar = map(float, polar)
-            polars.append(polar)
+            knotvec = polar
         elif line.startswith("degree"):
             degree = line.strip().split('=')
             degree = int(degree[1])
@@ -44,7 +49,8 @@ def parse_data(lines=None, filename=None):
             dt = line.strip().split('=')
             dt = float(dt[1])
     is_loading = False
-    return points, polars, degree, dt
+
+    return points, knotvec, degree, dt
 
 def world2canvas(points, width, height, perpixel_x, perpixel_y):
     """
@@ -79,3 +85,6 @@ def canvas2world(points, width, height, perpixel_x, perpixel_y):
         transformed.append((x,y))
 
     return transformed
+
+def find_center(x1, y1, x2, y2):
+    return (x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2)

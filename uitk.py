@@ -82,7 +82,6 @@ dt=0.2
             return
         self.canvas.delete(closest)
         self._canvas_cps.remove(closest)
-        print self._canvas_cps
 
     def canvas_move_cp_cb(self, event):
         if self._canvas_moving_cp != -1:
@@ -119,8 +118,6 @@ dt=0.2
                 event.x+halo, event.y+halo)
         cps = self.canvas.find_withtag('cp')
         overlapping_cps = set(overlapping).intersection(set(cps))
-        for cp in cps:
-            print cp, self.canvas.coords(cp)
 
         if not len(overlapping_cps):
             # No overlapping control points.
@@ -139,19 +136,23 @@ dt=0.2
         self.drawing_labels = not self.drawing_labels
 
     def render_cb(self, event=None):
-        self.clear_cb()
-
         # Grab data.
         s = self.editbox.get("0.0", "end")
         lines = s.split('\n')
-        control_points, knotvecs, self.degree, self.dt = parse_data(lines)
+        control_points, knotvec, self.degree, self.dt = parse_data(lines)
+
+        if len(self._canvas_cps):
+            control_points = self._cp_coords()
+        print control_points
+
+        self.clear_cb()
 
         # Build BSpline.
         bspline = BSpline(degree=self.degree,dt=self.dt)
         for cp in control_points:
             p = ControlPoint(Point(cp[0], cp[1]))
             bspline.insert_control_point(p)
-        bspline.replace_knot_vector(knotvecs[0])
+        bspline.replace_knot_vector(knotvec)
 
         if bspline.is_valid():
             # Run de Boor to find spline.
@@ -201,9 +202,27 @@ dt=0.2
         self._canvas_cps.append(oval)
 
     def _draw_cp(self, x, y, radius=4, tags=None):
-        oval = self.canvas.create_oval(x-radius, y-radius,
-                x+radius, y+radius, fill="#ff0000", tags=tags)
+        if tags:
+            oval = self.canvas.create_oval(x-radius, y-radius,
+                    x+radius, y+radius, fill="#ff0000", tags=tags)
+        else:
+            oval = self.canvas.create_oval(x-radius, y-radius,
+                    x+radius, y+radius, fill="#ff0000")
         return oval
+
+    def _cp_coords(self):
+        """
+        Return the control points draw on screen in world coordinates.
+        """
+        cps = self.canvas.find_withtag('cp')
+        cps_world = []
+        for obj in cps:
+            p = find_center(*(self.canvas.coords(obj)))
+            world_points = canvas2world([p], self.canvas_w, self.canvas_h, 32, 32)
+            cps_world.append(world_points[0])
+        return cps_world
+
+        #return map(lambda obj : find_center(*(self.canvas.coords(obj))), cps)
 
 def main(argv):
     drawui = UI()
