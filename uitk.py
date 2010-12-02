@@ -32,7 +32,6 @@ dt=0.2
         # Data structures
 
         # control points drawn on canvas
-        self._canvas_cps = []
         self._canvas_moving_cp = -1 # cp being moved
 
         # Tk Widgets
@@ -81,7 +80,6 @@ dt=0.2
         if 'usercp' not in tags:
             return
         self.canvas.delete(closest)
-        self._canvas_cps.remove(closest)
 
     def canvas_move_cp_cb(self, event):
         if self._canvas_moving_cp != -1:
@@ -143,7 +141,7 @@ dt=0.2
         lines = s.split('\n')
         control_points, knotvec, self.degree, self.dt = parse_data(lines)
 
-        if len(self._canvas_cps):
+        if len(self.canvas.find_withtag('usercp')):
             control_points = self._cp_coords()
         print control_points
 
@@ -201,7 +199,6 @@ dt=0.2
 
     def _create_cp(self, x, y, radius=4):
         oval = self._draw_cp(x, y, radius, tags=('usercp',))
-        self._canvas_cps.append(oval)
 
     def _draw_cp(self, x, y, radius=4, tags=tuple()):
         oval = self.canvas.create_oval(x-radius, y-radius,
