@@ -126,6 +126,7 @@ dt=0.2
     def clear_cb(self, event=None):
         self.canvas.delete('line')
         self.canvas.delete('cp')
+        self.canvas.delete('text')
 
     def show(self):
         mainloop()
@@ -168,7 +169,8 @@ dt=0.2
             self.draw()
         else:
             error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
-            self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100, text=error_msg)
+            self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100,
+                    text=error_msg, tags=('text','error'))
 
     def draw_labels(self):
         magic = -10
@@ -178,7 +180,8 @@ dt=0.2
             
             polar = str(self.control_point_polars[i])
             label = "%d %s" % (i, polar)
-            self.canvas.create_text(x, y+magic, text=label)
+            self.canvas.create_text(x, y+magic, text=label,
+                    tags=('text', 'label'))
 
     def draw(self):
         # Draw control points
