@@ -79,7 +79,7 @@ dt=0.2
     def canvas_rm_cp_cb(self, event):
         closest = self.canvas.find_closest(event.x, event.y)[0]
         tags = self.canvas.gettags(closest)
-        if 'usercp' not in tags:
+        if 'cp' not in tags:
             return
         self.canvas.delete(closest)
 
@@ -97,7 +97,7 @@ dt=0.2
             # Start moving control point.
             closest = self.canvas.find_closest(event.x, event.y)[0]
             tags = self.canvas.gettags(closest)
-            if 'usercp' not in tags:
+            if 'cp' not in tags:
                 return
             self._canvas_moving_cp = closest
 
@@ -116,7 +116,7 @@ dt=0.2
         halo = 4
         overlapping = self.canvas.find_overlapping(event.x-halo, event.y-halo,
                 event.x+halo, event.y+halo)
-        cps = self.canvas.find_withtag('usercp')
+        cps = self.canvas.find_withtag('cp')
         overlapping_cps = set(overlapping).intersection(set(cps))
 
         if not len(overlapping_cps):
@@ -140,7 +140,7 @@ dt=0.2
         lines = s.split('\n')
         control_points, knotvec, self.degree, self.dt = parse_data(lines)
 
-        if len(self.canvas.find_withtag('usercp')):
+        if len(self.canvas.find_withtag('cp')):
             control_points = self._cp_coords()
         print control_points
 
@@ -187,7 +187,7 @@ dt=0.2
         # Draw control points
         for i, cp in enumerate(self.control_points):
             x, y = tuple(cp)
-            self._draw_cp(x, y)
+            self._create_cp(x, y)
 
         # Draw points
         for i in range(len(self.draw_points)-1):
@@ -198,19 +198,16 @@ dt=0.2
         if self.drawing_labels:
             self.draw_labels()
 
-    def _create_cp(self, x, y, radius=4):
-        oval = self._draw_cp(x, y, radius, tags=('usercp',))
-
-    def _draw_cp(self, x, y, radius=4, tags=tuple()):
+    def _create_cp(self, x, y, radius=4, tags=('cp',)):
         oval = self.canvas.create_oval(x-radius, y-radius,
-                x+radius, y+radius, fill="#ff0000", tags=(('cp',) + tags))
+                x+radius, y+radius, fill="#ff0000", tags=tags)
         return oval
 
     def _cp_coords(self):
         """
         Return the control points draw on screen in world coordinates.
         """
-        cps = self.canvas.find_withtag('usercp')
+        cps = self.canvas.find_withtag('cp')
         cps_canvas = map(lambda obj : find_center(*(self.canvas.coords(obj))), cps)
         return canvas2world(cps_canvas, self.canvas_w, self.canvas_h,
                 self.perpixel)
