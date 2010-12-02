@@ -52,7 +52,7 @@ def parse_data(lines=None, filename=None):
 
     return points, knotvec, degree, dt
 
-def world2canvas(points, width, height, perpixel_x, perpixel_y):
+def world2canvas(points, width, height, perpixel):
     """
     Converts from world coordinates to canvas coordinates.
 
@@ -65,13 +65,13 @@ def world2canvas(points, width, height, perpixel_x, perpixel_y):
 
     transformed = []
     for p in points:
-        x = p[0] * perpixel_y + halfwidth
-        y = halfheight - p[1] * perpixel_y 
+        x = p[0] * perpixel + halfwidth
+        y = halfheight - p[1] * perpixel 
         transformed.append((x,y))
 
     return transformed
 
-def canvas2world(points, width, height, perpixel_x, perpixel_y):
+def canvas2world(points, width, height, perpixel):
     """
     Converts from canvas coordinates to world coordinates.
     """
@@ -80,8 +80,8 @@ def canvas2world(points, width, height, perpixel_x, perpixel_y):
 
     transformed = []
     for p in points:
-        x = (p[0] - halfwidth) / perpixel_x
-        y = (halfheight - p[1]) / perpixel_y
+        x = (p[0] - halfwidth) / perpixel
+        y = (halfheight - p[1]) / perpixel
         transformed.append((x,y))
 
     return transformed

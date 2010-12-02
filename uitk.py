@@ -29,6 +29,8 @@ dt=0.2
         self.canvas_w = canvas_w
         self.canvas_h = canvas_h
 
+        self.perpixel = 32
+
         # Data structures
 
         # control points drawn on canvas
@@ -57,7 +59,7 @@ dt=0.2
 
         self.canvas = Canvas(self.frame, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
         self.image = PhotoImage(file='axis.gif')
-        self.canvas.create_image(320, 160, image=self.image)
+        self.canvas.create_image(self.canvas_w/2, self.canvas_h/2, image=self.image)
 
         self.master.bind_class('Canvas', '<Button-1>', self.canvas_add_cp_cb)
         self.master.bind_class('Canvas', '<Double-Button-1>', self.canvas_rm_cp_cb)
@@ -158,9 +160,9 @@ dt=0.2
             control_points, self.control_point_polars, points = bspline.render()
 
             self.control_points = world2canvas(control_points,
-                    self.canvas_w, self.canvas_h, 32, 32)
+                    self.canvas_w, self.canvas_h, self.perpixel)
             self.draw_points = world2canvas(points, self.canvas_w,
-                    self.canvas_h, 32, 32)
+                    self.canvas_h, self.perpixel)
 
             # Draw.
             self.draw()
@@ -207,7 +209,8 @@ dt=0.2
         """
         cps = self.canvas.find_withtag('usercp')
         cps_canvas = map(lambda obj : find_center(*(self.canvas.coords(obj))), cps)
-        return canvas2world(cps_canvas, self.canvas_w, self.canvas_h, 32, 32)
+        return canvas2world(cps_canvas, self.canvas_w, self.canvas_h,
+                self.perpixel)
 
 def main(argv):
     drawui = UI()
