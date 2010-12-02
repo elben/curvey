@@ -78,7 +78,7 @@ dt=0.2
     def canvas_rm_cp_cb(self, event):
         closest = self.canvas.find_closest(event.x, event.y)[0]
         tags = self.canvas.gettags(closest)
-        if 'cp' not in tags:
+        if 'usercp' not in tags:
             return
         self.canvas.delete(closest)
         self._canvas_cps.remove(closest)
@@ -97,7 +97,7 @@ dt=0.2
             # Start moving control point.
             closest = self.canvas.find_closest(event.x, event.y)[0]
             tags = self.canvas.gettags(closest)
-            if 'cp' not in tags:
+            if 'usercp' not in tags:
                 return
             self._canvas_moving_cp = closest
 
@@ -116,7 +116,7 @@ dt=0.2
         halo = 4
         overlapping = self.canvas.find_overlapping(event.x-halo, event.y-halo,
                 event.x+halo, event.y+halo)
-        cps = self.canvas.find_withtag('cp')
+        cps = self.canvas.find_withtag('usercp')
         overlapping_cps = set(overlapping).intersection(set(cps))
 
         if not len(overlapping_cps):
@@ -124,10 +124,12 @@ dt=0.2
             self._create_cp(event.x, event.y)
 
     def clear_cb(self, event=None):
-        self.canvas.destroy()
-        self.canvas = Canvas(self.frame, width=self.canvas_w, height=self.canvas_h, bd=4, background="#cccccc")
-        self.canvas.create_image(320, 160, image=self.image)
-        self.canvas.grid(row=2, column=3, columnspan=2)
+        #self.canvas.destroy()
+        #self.canvas = Canvas(self.frame, width=self.canvas_w, height=self.canvas_h, bd=4, background="#cccccc")
+        #self.canvas.create_image(320, 160, image=self.image)
+        #self.canvas.grid(row=2, column=3, columnspan=2)
+        self.canvas.delete('line')
+        self.canvas.delete('cp')
 
     def show(self):
         mainloop()
@@ -192,29 +194,25 @@ dt=0.2
         for i in range(len(self.draw_points)-1):
             x1, y1 = tuple(self.draw_points[i])
             x2, y2 = tuple(self.draw_points[i+1])
-            self.canvas.create_line(x1, y1, x2, y2, fill="blue")
+            self.canvas.create_line(x1, y1, x2, y2, fill="blue", tags=('line',))
 
         if self.drawing_labels:
             self.draw_labels()
 
     def _create_cp(self, x, y, radius=4):
-        oval = self._draw_cp(x, y, radius, tags=('cp',))
+        oval = self._draw_cp(x, y, radius, tags=('usercp',))
         self._canvas_cps.append(oval)
 
-    def _draw_cp(self, x, y, radius=4, tags=None):
-        if tags:
-            oval = self.canvas.create_oval(x-radius, y-radius,
-                    x+radius, y+radius, fill="#ff0000", tags=tags)
-        else:
-            oval = self.canvas.create_oval(x-radius, y-radius,
-                    x+radius, y+radius, fill="#ff0000")
+    def _draw_cp(self, x, y, radius=4, tags=tuple()):
+        oval = self.canvas.create_oval(x-radius, y-radius,
+                x+radius, y+radius, fill="#ff0000", tags=(('cp',) + tags))
         return oval
 
     def _cp_coords(self):
         """
         Return the control points draw on screen in world coordinates.
         """
-        cps = self.canvas.find_withtag('cp')
+        cps = self.canvas.find_withtag('usercp')
         cps_world = []
         for obj in cps:
             p = find_center(*(self.canvas.coords(obj)))
