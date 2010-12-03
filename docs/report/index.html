@@ -11,15 +11,18 @@
         <div id="subtitle">A b-spline sandbox that doesn't suck (as much).</div>
         <p>by <a href="http://elbenshira.com">Elben Shira</a></p>
       </div>
+
       <div id="abstract" class="section">
         <h2>Abstract</h2>
         <p>Gaining an intuitive understanding for b-splines is difficult without
         directly seeing the effects of different knot vectors and control point
         positions.</p>
-        <p>Curvey is a b-spline demo that allows the user to specify the degree
-        of the spline, the number of control points, and the knot vector.
-        </p>
+
+        <p>Curvey allows you to build b-spline curves by specifying the degree
+        of the curve, control points, and the knot vector. This allows the user
+        to see b-spline curves in its most general sense.</p>
       </div>
+
       <div id="background" class="section">
         <h2>Background</h2>
         <p>Many applications exist for playing around with
@@ -66,13 +69,10 @@
         <p>More in-depth discussion can be found in [1].</p>
 
       </div>
+
       <div id="curvey" class="section">
 
         <h2>Curvey</h2>
-
-        <p>Curvey allows you to build b-spline curves by specifying the degree
-        of the curve, control points, and the knot vector. This allows the user
-        to see b-spline curves in its most general sense.</p>
 
         <p>Curvey uses the de Boor algorithm to evaluate the b-spline curves. It
         uses a simple "walk" by inserting p(u,u,u) every delta as defined by the
@@ -106,6 +106,7 @@
         <div class="code">$ python2.7-32 curvey.py --ui</div>
 
       </div>
+
       <div id="references" class="section">
         <h2>References</h2>
         <ol>
