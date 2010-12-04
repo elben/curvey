@@ -160,14 +160,19 @@ dt=0.2
             self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100,
                     text=error_msg, tags=('text','error'))
 
+    def _is_control_point(self, obj):
+        tags = self.canvas.gettags(obj)
+        return 'realcp' in tags
+
+    def _create_cp(self, x, y, tags=('cp','realcp'),
+            color="#ff0000", outline="#000000"):
+        oval = self.canvas.create_oval(x-self.radius, y-self.radius,
+                x+self.radius, y+self.radius, fill=color, outline=outline, tags=tags)
+        return oval
 
     def _delete_cp(self, obj):
         if _is_control_point(obj):
             self.canvas.delete(obj)
-
-    def _is_control_point(self, obj):
-        tags = self.canvas.gettags(obj)
-        return 'realcp' in tags
 
     def _move_cp(self, event):
         if self._canvas_moving_cp != -1:
@@ -191,6 +196,15 @@ dt=0.2
             self.canvas.itemconfigure(closest, fill="#F5D5DD", outline="#C9A5AE")
             self.canvas.dtag(closest, 'realcp')
             self.canvas.addtag_withtag(closest, 'fakecp')
+
+    def _cp_coords(self):
+        """
+        Return the control points draw on screen in world coordinates.
+        """
+        cps = self.canvas.find_withtag('realcp')
+        cps_canvas = map(lambda obj : find_center(*(self.canvas.coords(obj))), cps)
+        return canvas2world(cps_canvas, self.canvas_w, self.canvas_h,
+                self.perpixel)
 
     def _clear_cps(self):
         self.canvas.delete('cp')
@@ -221,21 +235,6 @@ dt=0.2
 
         if self.drawing_labels:
             self._draw_labels()
-
-    def _create_cp(self, x, y, tags=('cp','realcp'),
-            color="#ff0000", outline="#000000"):
-        oval = self.canvas.create_oval(x-self.radius, y-self.radius,
-                x+self.radius, y+self.radius, fill=color, outline=outline, tags=tags)
-        return oval
-
-    def _cp_coords(self):
-        """
-        Return the control points draw on screen in world coordinates.
-        """
-        cps = self.canvas.find_withtag('realcp')
-        cps_canvas = map(lambda obj : find_center(*(self.canvas.coords(obj))), cps)
-        return canvas2world(cps_canvas, self.canvas_w, self.canvas_h,
-                self.perpixel)
 
     def show(self):
         mainloop()
