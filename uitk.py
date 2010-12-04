@@ -14,7 +14,7 @@ dt=0.2
 (0, 2)
 [0,0,0,1,3,4,4,4]"""
 
-    def __init__(self, control_points=None, draw_points=None, degree=3,
+    def __init__(self, control_points=None, degree=3,
             background_color="#cccccc", point_color="#ff0000",
             line_color="#009900",
             canvas_w=640, canvas_h=320):
@@ -22,7 +22,6 @@ dt=0.2
         self.dt = None
         self.control_points = control_points
         self.control_point_polars = []
-        self.draw_points = draw_points
         self.background_color = background_color
         self.point_color = point_color
         self.line_color = line_color
@@ -166,11 +165,11 @@ dt=0.2
 
             self.control_points = world2canvas(control_points,
                     self.canvas_w, self.canvas_h, self.perpixel)
-            self.draw_points = world2canvas(points, self.canvas_w,
+            draw_points = world2canvas(points, self.canvas_w,
                     self.canvas_h, self.perpixel)
 
             # Draw.
-            self._draw(self.draw_points, use_text_cps)
+            self._draw(draw_points, use_text_cps)
         else:
             error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
             self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100,
