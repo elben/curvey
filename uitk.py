@@ -87,13 +87,6 @@ dt=0.2
     def canvas_move_cp_cb(self, event):
         if self._canvas_moving_cp:
             # Place control point.
-            #coords = self.canvas.coords(self._canvas_moving_cp)
-            #dx = coords[0] - coords[2]
-            #dy = coords[1] - coords[3]
-            #self.canvas.coords(self._canvas_moving_cp, event.x, event.y,
-                    #event.x+dx, event.y+dy)
-            #self.canvas.itemconfigure(self._canvas_moving_cp, state=NORMAL)
-            #self.canvas.addtag_withtag(self._canvas_moving_cp, 'realcp')
             self._create_cp(event.x, event.y, tags=('cp', 'realcp'))
             self._canvas_moving_cp = False
             
@@ -108,8 +101,6 @@ dt=0.2
             self._canvas_moving_cp = True
             coords = self.canvas.coords(closest)
             self.canvas.delete(closest)
-            #self.canvas.itemconfigure(closest, state=HIDDEN)
-            #self.canvas.dtag(closest, 'realcp')
 
             # draw a temporary control point
             x, y = find_center(*coords)
@@ -208,11 +199,6 @@ dt=0.2
                     tags=('text', 'label'))
 
     def draw(self):
-        # Draw control points
-        #for i, cp in enumerate(self.control_points):
-            #x, y = tuple(cp)
-            #self._create_cp(x, y)
-
         # Draw line segments
         for i in range(len(self.draw_points)-1):
             x1, y1 = tuple(self.draw_points[i])
