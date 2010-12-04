@@ -34,7 +34,7 @@ dt=0.2
         # Data structures
 
         # control points drawn on canvas
-        self._canvas_moving_cp = -1 # cp being moved
+        self._canvas_moving_cp = False # cp being moved
 
         # Tk Widgets
 
@@ -85,7 +85,7 @@ dt=0.2
         self.canvas.delete(closest)
 
     def canvas_move_cp_cb(self, event):
-        if self._canvas_moving_cp != -1:
+        if self._canvas_moving_cp:
             # Place control point.
             #coords = self.canvas.coords(self._canvas_moving_cp)
             #dx = coords[0] - coords[2]
@@ -95,7 +95,7 @@ dt=0.2
             #self.canvas.itemconfigure(self._canvas_moving_cp, state=NORMAL)
             #self.canvas.addtag_withtag(self._canvas_moving_cp, 'realcp')
             self._create_cp(event.x, event.y, tags=('cp', 'realcp'))
-            self._canvas_moving_cp = -1
+            self._canvas_moving_cp = False
             
             # remove temporary
             self.canvas.delete('fakecp')
@@ -105,7 +105,7 @@ dt=0.2
             tags = self.canvas.gettags(closest)
             if 'realcp' not in tags:
                 return
-            self._canvas_moving_cp = closest
+            self._canvas_moving_cp = True
             coords = self.canvas.coords(closest)
             self.canvas.delete(closest)
             #self.canvas.itemconfigure(closest, state=HIDDEN)
@@ -123,7 +123,7 @@ dt=0.2
         points nearby.
         """
 
-        if self._canvas_moving_cp != -1:
+        if self._canvas_moving_cp:
             # Moving a control point, don't allow user to add new points.
             return
         halo = 4
