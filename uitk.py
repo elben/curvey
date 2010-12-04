@@ -34,8 +34,8 @@ dt=0.2
 
         # Data structures
 
-        # control points drawn on canvas
-        self._canvas_moving_cp = -1 # cp being moved
+        # Moving control points
+        self._moving_cp = -1 # cp being moved
         self._moving_cp_tracer = -1 # cp tracer id
 
         # Tk Widgets
@@ -45,26 +45,27 @@ dt=0.2
 
         self.frame = Frame(self.master)
 
-        self.editbox = Text(self.frame, bg='#cccccc', borderwidth=4, width=20,
+        self.editbox_text = Text(self.frame, bg='#cccccc', borderwidth=4, width=20,
                 height=30)
-        self.editbox.insert('0.0', UI.default_control_points)
+        self.editbox_text.insert('0.0', UI.default_control_points)
         
-        self.renderbutton = Button(self.frame, text="Render")
+        self.render_button = Button(self.frame, text="Render")
 
         self.drawing_labels = False
         self.draw_labels_checkbox = Checkbutton(self.frame, text="Control point labels")
         self.draw_labels_checkbox.bind('<Button-1>', self._draw_labels_cb)
 
-        self.clearbutton = Button(self.frame, text="Clear")
+        self.clear_button = Button(self.frame, text="Clear")
 
         self.canvas = Canvas(self.frame, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
-        self.image = PhotoImage(file='axis.gif')
-        self.canvas.create_image(self.canvas_w/2, self.canvas_h/2, image=self.image)
+        self.axis_image = PhotoImage(file='axis.gif')
+        self.canvas.create_image(self.canvas_w/2, self.canvas_h/2,
+                image=self.axis_image)
 
         # Bindings.
 
-        self.renderbutton.bind('<Button-1>', self._render_cb)
-        self.clearbutton.bind('<Button-1>', self._clear_cb)
+        self.render_button.bind('<Button-1>', self._render_cb)
+        self.clear_button.bind('<Button-1>', self._clear_cb)
 
         self.canvas.bind('<Button-1>', self._canvas_lclick_cb)
         self.canvas.bind('<Double-Button-1>', self._canvas_2lclick_cb)
@@ -75,12 +76,12 @@ dt=0.2
 
         self.frame.grid(row=0, column=0)
 
-        self.editbox.grid(row=2, column=0, columnspan=2)
+        self.editbox_text.grid(row=2, column=0, columnspan=2)
         self.canvas.grid(row=2, column=3, columnspan=2)
 
         self.draw_labels_checkbox.grid(row=0, column=0, columnspan=2)
-        self.renderbutton.grid(row=1, column=0)
-        self.clearbutton.grid(row=1, column=1)
+        self.render_button.grid(row=1, column=0)
+        self.clear_button.grid(row=1, column=1)
 
     def _canvas_motion_cb(self, event):
         """
@@ -137,13 +138,12 @@ dt=0.2
 
     def _render_cb(self, event=None):
         # Grab data.
-        s = self.editbox.get("0.0", "end")
+        s = self.editbox_text.get("0.0", "end")
         lines = s.split('\n')
         control_points, knotvec, self.degree, self.dt = parse_data(lines)
 
         if len(self.canvas.find_withtag('realcp')):
             control_points = self._cp_coords()
-        print control_points
 
         # Build BSpline.
         bspline = BSpline(degree=self.degree,dt=self.dt)
@@ -179,7 +179,7 @@ dt=0.2
         return 'realcp' in tags
 
     def _is_moving_control_point(self):
-        return self._canvas_moving_cp != -1
+        return self._moving_cp != -1
 
     def _create_cp(self, x, y, tags=('cp','realcp'),
             color="#ff0000", outline="#000000"):
@@ -194,13 +194,13 @@ dt=0.2
     def _move_cp(self, event):
         if self._is_moving_control_point():
             # Place control point.
-            self.canvas.coords(self._canvas_moving_cp,
+            self.canvas.coords(self._moving_cp,
                     event.x-self.radius, event.y-self.radius,
                     event.x+self.radius, event.y+self.radius)
-            self.canvas.itemconfigure(self._canvas_moving_cp, fill="#ff0000", outline="#000000")
-            self.canvas.dtag(self._canvas_moving_cp, 'fakecp')
-            self.canvas.addtag_withtag('realcp', self._canvas_moving_cp)
-            self._canvas_moving_cp = -1
+            self.canvas.itemconfigure(self._moving_cp, fill="#ff0000", outline="#000000")
+            self.canvas.dtag(self._moving_cp, 'fakecp')
+            self.canvas.addtag_withtag('realcp', self._moving_cp)
+            self._moving_cp = -1
 
             # Delete tracer.
             self.canvas.delete(self._moving_cp_tracer)
@@ -210,7 +210,7 @@ dt=0.2
             closest = self.canvas.find_closest(event.x, event.y)[0]
             if not self._is_control_point(closest):
                 return
-            self._canvas_moving_cp = closest
+            self._moving_cp = closest
             coords = self.canvas.coords(closest)
 
             # Show point as a 'temporary' point
