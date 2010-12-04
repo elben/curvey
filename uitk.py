@@ -170,7 +170,7 @@ dt=0.2
                     self.canvas_h, self.perpixel)
 
             # Draw.
-            self._draw(use_text_cps)
+            self._draw(self.draw_points, use_text_cps)
         else:
             error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
             self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100,
@@ -253,16 +253,16 @@ dt=0.2
             self.canvas.create_text(x, y+magic, text=label,
                     tags=('text', 'label'))
 
-    def _draw(self, draw_cps=False):
+    def _draw(self, draw_points, draw_cps=False):
         if draw_cps:
             for i, cp in enumerate(self.control_points):
                 x, y = tuple(cp)
                 self._create_cp(x, y)
             
         # Draw line segments
-        for i in range(len(self.draw_points)-1):
-            x1, y1 = tuple(self.draw_points[i])
-            x2, y2 = tuple(self.draw_points[i+1])
+        for i in range(len(draw_points)-1):
+            x1, y1 = tuple(draw_points[i])
+            x2, y2 = tuple(draw_points[i+1])
             self.canvas.create_line(x1, y1, x2, y2, fill="blue", tags=('line',))
 
         if self.drawing_labels:
