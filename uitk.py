@@ -82,7 +82,7 @@ dt=0.2
 
     def _canvas_2lclick_cb(self, event):
         """
-        Double left click on mouse.
+        Double left click on mouse. Delete a control point.
         """
 
         closest = self.canvas.find_closest(event.x, event.y)[0]
@@ -90,19 +90,17 @@ dt=0.2
 
     def _canvas_rclick_cb(self, event):
         """
-        Right click on mouse.
+        Right click on mouse. Move a control point.
         """
         self._move_cp(event)
 
     def _canvas_lclick_cb(self, event):
         """
-        Left click on mouse.
-
-        Add control point callback. Only add control point there is no control
-        points nearby.
+        Left click on mouse. Add a control point (if none are nearby)
         """
 
         if self._canvas_moving_cp != -1:
+            # Place moving control point.
             self._move_cp(event)
         else:
             overlapping = self.canvas.find_overlapping(event.x-self.radius,
@@ -115,50 +113,10 @@ dt=0.2
                 # No overlapping control points.
                 self._create_cp(event.x, event.y)
 
-    def _delete_cp(self, obj):
-        if _is_control_point(obj):
-            self.canvas.delete(obj)
-
-    def _is_control_point(self, obj):
-        tags = self.canvas.gettags(obj)
-        return 'realcp' in tags
-
-    def _move_cp(self, event):
-        if self._canvas_moving_cp != -1:
-            # Place control point.
-            self.canvas.coords(self._canvas_moving_cp,
-                    event.x-self.radius, event.y-self.radius,
-                    event.x+self.radius, event.y+self.radius)
-            self.canvas.itemconfigure(self._canvas_moving_cp, fill="#ff0000", outline="#000000")
-            self.canvas.dtag(self._canvas_moving_cp, 'fakecp')
-            self.canvas.addtag_withtag('realcp', self._canvas_moving_cp)
-            self._canvas_moving_cp = -1
-        else:
-            # Start moving control point.
-            closest = self.canvas.find_closest(event.x, event.y)[0]
-            if not self._is_control_point(closest):
-                return
-            self._canvas_moving_cp = closest
-            coords = self.canvas.coords(closest)
-
-            # show point as a 'temporary' point
-            self.canvas.itemconfigure(closest, fill="#F5D5DD", outline="#C9A5AE")
-            self.canvas.dtag(closest, 'realcp')
-            self.canvas.addtag_withtag(closest, 'fakecp')
-
     def _clear_cb(self, event=None):
         self._clear_lines()
         self._clear_cps()
         self._clear_labels()
-
-    def _clear_cps(self):
-        self.canvas.delete('cp')
-
-    def _clear_lines(self):
-        self.canvas.delete('line')
-
-    def _clear_labels(self):
-        self.canvas.delete('text')
 
     def _draw_labels_cb(self, event=None):
         self.drawing_labels = not self.drawing_labels
@@ -201,6 +159,47 @@ dt=0.2
             error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
             self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100,
                     text=error_msg, tags=('text','error'))
+
+
+    def _delete_cp(self, obj):
+        if _is_control_point(obj):
+            self.canvas.delete(obj)
+
+    def _is_control_point(self, obj):
+        tags = self.canvas.gettags(obj)
+        return 'realcp' in tags
+
+    def _move_cp(self, event):
+        if self._canvas_moving_cp != -1:
+            # Place control point.
+            self.canvas.coords(self._canvas_moving_cp,
+                    event.x-self.radius, event.y-self.radius,
+                    event.x+self.radius, event.y+self.radius)
+            self.canvas.itemconfigure(self._canvas_moving_cp, fill="#ff0000", outline="#000000")
+            self.canvas.dtag(self._canvas_moving_cp, 'fakecp')
+            self.canvas.addtag_withtag('realcp', self._canvas_moving_cp)
+            self._canvas_moving_cp = -1
+        else:
+            # Start moving control point.
+            closest = self.canvas.find_closest(event.x, event.y)[0]
+            if not self._is_control_point(closest):
+                return
+            self._canvas_moving_cp = closest
+            coords = self.canvas.coords(closest)
+
+            # show point as a 'temporary' point
+            self.canvas.itemconfigure(closest, fill="#F5D5DD", outline="#C9A5AE")
+            self.canvas.dtag(closest, 'realcp')
+            self.canvas.addtag_withtag(closest, 'fakecp')
+
+    def _clear_cps(self):
+        self.canvas.delete('cp')
+
+    def _clear_lines(self):
+        self.canvas.delete('line')
+
+    def _clear_labels(self):
+        self.canvas.delete('text')
 
     def _draw_labels(self):
         magic = -10
