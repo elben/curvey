@@ -8,7 +8,7 @@ class UI:
 dt=0.2
 (1, 3)
 (2, 4)
-(6, 5)
+(6, 3)
 (5, 1)
 (2, 1)
 (0, 2)
@@ -142,8 +142,10 @@ dt=0.2
         lines = s.split('\n')
         control_points, knotvec, self.degree, self.dt = parse_data(lines)
 
+        use_text_cps = True
         if len(self.canvas.find_withtag('realcp')):
             control_points = self._cp_coords()
+            use_text_cps = False
 
         # Build BSpline.
         bspline = BSpline(degree=self.degree,dt=self.dt)
@@ -168,7 +170,7 @@ dt=0.2
                     self.canvas_h, self.perpixel)
 
             # Draw.
-            self._draw()
+            self._draw(use_text_cps)
         else:
             error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
             self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100,
@@ -188,7 +190,7 @@ dt=0.2
         return oval
 
     def _delete_cp(self, obj):
-        if _is_control_point(obj):
+        if self._is_control_point(obj):
             self.canvas.delete(obj)
 
     def _move_cp(self, event):
@@ -251,7 +253,12 @@ dt=0.2
             self.canvas.create_text(x, y+magic, text=label,
                     tags=('text', 'label'))
 
-    def _draw(self):
+    def _draw(self, draw_cps=False):
+        if draw_cps:
+            for i, cp in enumerate(self.control_points):
+                x, y = tuple(cp)
+                self._create_cp(x, y)
+            
         # Draw line segments
         for i in range(len(self.draw_points)-1):
             x1, y1 = tuple(self.draw_points[i])
