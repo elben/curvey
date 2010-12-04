@@ -61,9 +61,10 @@ dt=0.2
         self.image = PhotoImage(file='axis.gif')
         self.canvas.create_image(self.canvas_w/2, self.canvas_h/2, image=self.image)
 
-        self.master.bind_class('Canvas', '<Button-1>', self.canvas_add_cp_cb)
-        self.master.bind_class('Canvas', '<Double-Button-1>', self.canvas_rm_cp_cb)
-        self.master.bind_class('Canvas', '<Button-2>', self.canvas_move_cp_cb)
+        self.canvas.bind('<Button-1>', self.canvas_add_cp_cb)
+        self.canvas.bind('<Double-Button-1>', self.canvas_rm_cp_cb)
+        self.canvas.bind('<Button-2>', self.canvas_move_cp_cb)
+        self.canvas.bind('<Button-2>', self.canvas_move_cp_cb)
 
         # Grid placements.
 
@@ -86,12 +87,14 @@ dt=0.2
     def canvas_move_cp_cb(self, event):
         if self._canvas_moving_cp != -1:
             # Place control point.
-            coords = self.canvas.coords(self._canvas_moving_cp)
-            dx = coords[0] - coords[2]
-            dy = coords[1] - coords[3]
-            self.canvas.coords(self._canvas_moving_cp, event.x, event.y,
-                    event.x+dx, event.y+dy)
-            self.canvas.itemconfigure(self._canvas_moving_cp, state=NORMAL)
+            #coords = self.canvas.coords(self._canvas_moving_cp)
+            #dx = coords[0] - coords[2]
+            #dy = coords[1] - coords[3]
+            #self.canvas.coords(self._canvas_moving_cp, event.x, event.y,
+                    #event.x+dx, event.y+dy)
+            #self.canvas.itemconfigure(self._canvas_moving_cp, state=NORMAL)
+            #self.canvas.addtag_withtag(self._canvas_moving_cp, 'realcp')
+            self._create_cp(event.x, event.y, tags=('cp', 'realcp'))
             self._canvas_moving_cp = -1
             
             # remove temporary
@@ -103,11 +106,13 @@ dt=0.2
             if 'realcp' not in tags:
                 return
             self._canvas_moving_cp = closest
-
-            self.canvas.itemconfigure(closest, state=HIDDEN)
+            coords = self.canvas.coords(closest)
+            self.canvas.delete(closest)
+            #self.canvas.itemconfigure(closest, state=HIDDEN)
+            #self.canvas.dtag(closest, 'realcp')
 
             # draw a temporary control point
-            x, y = find_center(*(self.canvas.coords(closest)))
+            x, y = find_center(*coords)
             self._create_cp(x, y, tags=('cp','fakecp'), color="#F5D5DD",
                     outline="#C9A5AE")
 
@@ -132,8 +137,17 @@ dt=0.2
             self._create_cp(event.x, event.y)
 
     def clear_cb(self, event=None):
-        self.canvas.delete('line')
+        self.clear_lines()
+        self.clear_cps()
+        self.clear_labels()
+
+    def clear_cps(self):
         self.canvas.delete('cp')
+
+    def clear_lines(self):
+        self.canvas.delete('line')
+
+    def clear_labels(self):
         self.canvas.delete('text')
 
     def show(self):
@@ -152,8 +166,6 @@ dt=0.2
             control_points = self._cp_coords()
         print control_points
 
-        self.clear_cb()
-
         # Build BSpline.
         bspline = BSpline(degree=self.degree,dt=self.dt)
         for cp in control_points:
@@ -162,6 +174,10 @@ dt=0.2
         bspline.replace_knot_vector(knotvec)
 
         if bspline.is_valid():
+            #self.clear_cb()
+            self.clear_lines()
+            self.clear_labels()
+
             # Run de Boor to find spline.
             bspline.render()
 
@@ -193,11 +209,11 @@ dt=0.2
 
     def draw(self):
         # Draw control points
-        for i, cp in enumerate(self.control_points):
-            x, y = tuple(cp)
-            self._create_cp(x, y)
+        #for i, cp in enumerate(self.control_points):
+            #x, y = tuple(cp)
+            #self._create_cp(x, y)
 
-        # Draw points
+        # Draw line segments
         for i in range(len(self.draw_points)-1):
             x1, y1 = tuple(self.draw_points[i])
             x2, y2 = tuple(self.draw_points[i+1])
