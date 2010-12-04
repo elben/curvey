@@ -30,6 +30,7 @@ dt=0.2
         self.canvas_h = canvas_h
 
         self.perpixel = 32
+        self.radius = 4
 
         # Data structures
 
@@ -88,8 +89,8 @@ dt=0.2
         if self._canvas_moving_cp != -1:
             # Place control point.
             self.canvas.coords(self._canvas_moving_cp,
-                    event.x-4, event.y-4,
-                    event.x+4, event.y+4)
+                    event.x-self.radius, event.y-self.radius,
+                    event.x+self.radius, event.y+self.radius)
             self.canvas.itemconfigure(self._canvas_moving_cp, fill="#ff0000", outline="#000000")
             self.canvas.dtag(self._canvas_moving_cp, 'fakecp')
             self.canvas.addtag_withtag('realcp', self._canvas_moving_cp)
@@ -117,9 +118,9 @@ dt=0.2
         if self._canvas_moving_cp != -1:
             # Moving a control point, don't allow user to add new points.
             return
-        halo = 4
-        overlapping = self.canvas.find_overlapping(event.x-halo, event.y-halo,
-                event.x+halo, event.y+halo)
+        overlapping = self.canvas.find_overlapping(event.x-self.radius,
+                event.y-self.radius,
+                event.x+self.radius, event.y+self.radius)
         cps = self.canvas.find_withtag('realcp')
         overlapping_cps = set(overlapping).intersection(set(cps))
 
@@ -208,10 +209,10 @@ dt=0.2
         if self.drawing_labels:
             self.draw_labels()
 
-    def _create_cp(self, x, y, radius=4, tags=('cp','realcp'),
+    def _create_cp(self, x, y, tags=('cp','realcp'),
             color="#ff0000", outline="#000000"):
-        oval = self.canvas.create_oval(x-radius, y-radius,
-                x+radius, y+radius, fill=color, outline=outline, tags=tags)
+        oval = self.canvas.create_oval(x-self.radius, y-self.radius,
+                x+self.radius, y+self.radius, fill=color, outline=outline, tags=tags)
         return oval
 
     def _cp_coords(self):
