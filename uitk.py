@@ -52,7 +52,7 @@ dt=0.2
 
         self.drawing_labels = False
         self.draw_labels_checkbox = Checkbutton(self.frame, text="Control point labels")
-        self.draw_labels_checkbox.bind('<Button-1>', self.draw_labels_cb)
+        self.draw_labels_checkbox.bind('<Button-1>', self._draw_labels_cb)
 
         self.clearbutton = Button(self.frame, text="Clear")
 
@@ -62,8 +62,8 @@ dt=0.2
 
         # Bindings.
 
-        self.renderbutton.bind('<Button-1>', self.render_cb)
-        self.clearbutton.bind('<Button-1>', self.clear_cb)
+        self.renderbutton.bind('<Button-1>', self._render_cb)
+        self.clearbutton.bind('<Button-1>', self._clear_cb)
 
         self.canvas.bind('<Button-1>', self._canvas_lclick_cb)
         self.canvas.bind('<Double-Button-1>', self._canvas_2lclick_cb)
@@ -86,13 +86,13 @@ dt=0.2
         """
 
         closest = self.canvas.find_closest(event.x, event.y)[0]
-        self.delete_cp(closest)
+        self._delete_cp(closest)
 
     def _canvas_rclick_cb(self, event):
         """
         Right click on mouse.
         """
-        self.move_cp(event)
+        self._move_cp(event)
 
     def _canvas_lclick_cb(self, event):
         """
@@ -103,7 +103,7 @@ dt=0.2
         """
 
         if self._canvas_moving_cp != -1:
-            self.move_cp(event)
+            self._move_cp(event)
         else:
             overlapping = self.canvas.find_overlapping(event.x-self.radius,
                     event.y-self.radius,
@@ -115,15 +115,15 @@ dt=0.2
                 # No overlapping control points.
                 self._create_cp(event.x, event.y)
 
-    def delete_cp(self, obj):
-        if is_control_point(obj):
+    def _delete_cp(self, obj):
+        if _is_control_point(obj):
             self.canvas.delete(obj)
 
-    def is_control_point(self, obj):
+    def _is_control_point(self, obj):
         tags = self.canvas.gettags(obj)
         return 'realcp' in tags
 
-    def move_cp(self, event):
+    def _move_cp(self, event):
         if self._canvas_moving_cp != -1:
             # Place control point.
             self.canvas.coords(self._canvas_moving_cp,
@@ -136,7 +136,7 @@ dt=0.2
         else:
             # Start moving control point.
             closest = self.canvas.find_closest(event.x, event.y)[0]
-            if not self.is_control_point(closest):
+            if not self._is_control_point(closest):
                 return
             self._canvas_moving_cp = closest
             coords = self.canvas.coords(closest)
@@ -146,27 +146,24 @@ dt=0.2
             self.canvas.dtag(closest, 'realcp')
             self.canvas.addtag_withtag(closest, 'fakecp')
 
-    def clear_cb(self, event=None):
-        self.clear_lines()
-        self.clear_cps()
-        self.clear_labels()
+    def _clear_cb(self, event=None):
+        self._clear_lines()
+        self._clear_cps()
+        self._clear_labels()
 
-    def clear_cps(self):
+    def _clear_cps(self):
         self.canvas.delete('cp')
 
-    def clear_lines(self):
+    def _clear_lines(self):
         self.canvas.delete('line')
 
-    def clear_labels(self):
+    def _clear_labels(self):
         self.canvas.delete('text')
 
-    def show(self):
-        mainloop()
-
-    def draw_labels_cb(self, event=None):
+    def _draw_labels_cb(self, event=None):
         self.drawing_labels = not self.drawing_labels
 
-    def render_cb(self, event=None):
+    def _render_cb(self, event=None):
         # Grab data.
         s = self.editbox.get("0.0", "end")
         lines = s.split('\n')
@@ -184,9 +181,8 @@ dt=0.2
         bspline.replace_knot_vector(knotvec)
 
         if bspline.is_valid():
-            #self.clear_cb()
-            self.clear_lines()
-            self.clear_labels()
+            self._clear_lines()
+            self._clear_labels()
 
             # Run de Boor to find spline.
             bspline.render()
@@ -200,13 +196,13 @@ dt=0.2
                     self.canvas_h, self.perpixel)
 
             # Draw.
-            self.draw()
+            self._draw()
         else:
             error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
             self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100,
                     text=error_msg, tags=('text','error'))
 
-    def draw_labels(self):
+    def _draw_labels(self):
         magic = -10
 
         for i, cp in enumerate(self.control_points):
@@ -217,7 +213,7 @@ dt=0.2
             self.canvas.create_text(x, y+magic, text=label,
                     tags=('text', 'label'))
 
-    def draw(self):
+    def _draw(self):
         # Draw line segments
         for i in range(len(self.draw_points)-1):
             x1, y1 = tuple(self.draw_points[i])
@@ -225,7 +221,7 @@ dt=0.2
             self.canvas.create_line(x1, y1, x2, y2, fill="blue", tags=('line',))
 
         if self.drawing_labels:
-            self.draw_labels()
+            self._draw_labels()
 
     def _create_cp(self, x, y, tags=('cp','realcp'),
             color="#ff0000", outline="#000000"):
@@ -241,6 +237,10 @@ dt=0.2
         cps_canvas = map(lambda obj : find_center(*(self.canvas.coords(obj))), cps)
         return canvas2world(cps_canvas, self.canvas_w, self.canvas_h,
                 self.perpixel)
+
+    def show(self):
+        mainloop()
+
 
 def main(argv):
     drawui = UI()
