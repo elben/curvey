@@ -78,11 +78,12 @@ dt=0.2
         self.clearbutton.grid(row=1, column=1)
 
     def _canvas_2lclick_cb(self, event):
+        """
+        Double left click on mouse.
+        """
+
         closest = self.canvas.find_closest(event.x, event.y)[0]
-        tags = self.canvas.gettags(closest)
-        if 'realcp' not in tags:
-            return
-        self.canvas.delete(closest)
+        self.delete_cp(closest)
 
     def _canvas_rclick_cb(self, event):
         """
@@ -111,6 +112,14 @@ dt=0.2
                 # No overlapping control points.
                 self._create_cp(event.x, event.y)
 
+    def delete_cp(self, obj):
+        if is_control_point(obj):
+            self.canvas.delete(obj)
+
+    def is_control_point(self, obj):
+        tags = self.canvas.gettags(obj)
+        return 'realcp' in tags
+
     def move_cp(self, event):
         if self._canvas_moving_cp != -1:
             # Place control point.
@@ -124,8 +133,7 @@ dt=0.2
         else:
             # Start moving control point.
             closest = self.canvas.find_closest(event.x, event.y)[0]
-            tags = self.canvas.gettags(closest)
-            if 'realcp' not in tags:
+            if not self.is_control_point(closest):
                 return
             self._canvas_moving_cp = closest
             coords = self.canvas.coords(closest)
