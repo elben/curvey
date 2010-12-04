@@ -62,10 +62,9 @@ dt=0.2
         self.image = PhotoImage(file='axis.gif')
         self.canvas.create_image(self.canvas_w/2, self.canvas_h/2, image=self.image)
 
-        self.canvas.bind('<Button-1>', self.canvas_add_cp_cb)
-        self.canvas.bind('<Double-Button-1>', self.canvas_rm_cp_cb)
-        self.canvas.bind('<Button-2>', self.canvas_move_cp_cb)
-        self.canvas.bind('<Button-2>', self.canvas_move_cp_cb)
+        self.canvas.bind('<Button-1>', self._canvas_lclick_cb)
+        self.canvas.bind('<Double-Button-1>', self._canvas_2lclick_cb)
+        self.canvas.bind('<Button-2>', self._canvas_rclick_cb)
 
         # Grid placements.
 
@@ -78,14 +77,41 @@ dt=0.2
         self.renderbutton.grid(row=1, column=0)
         self.clearbutton.grid(row=1, column=1)
 
-    def canvas_rm_cp_cb(self, event):
+    def _canvas_2lclick_cb(self, event):
         closest = self.canvas.find_closest(event.x, event.y)[0]
         tags = self.canvas.gettags(closest)
         if 'realcp' not in tags:
             return
         self.canvas.delete(closest)
 
-    def canvas_move_cp_cb(self, event):
+    def _canvas_rclick_cb(self, event):
+        """
+        Right click on mouse.
+        """
+        self.move_cp(event)
+
+    def _canvas_lclick_cb(self, event):
+        """
+        Left click on mouse.
+
+        Add control point callback. Only add control point there is no control
+        points nearby.
+        """
+
+        if self._canvas_moving_cp != -1:
+            self.move_cp(event)
+        else:
+            overlapping = self.canvas.find_overlapping(event.x-self.radius,
+                    event.y-self.radius,
+                    event.x+self.radius, event.y+self.radius)
+            cps = self.canvas.find_withtag('realcp')
+            overlapping_cps = set(overlapping).intersection(set(cps))
+
+            if not len(overlapping_cps):
+                # No overlapping control points.
+                self._create_cp(event.x, event.y)
+
+    def move_cp(self, event):
         if self._canvas_moving_cp != -1:
             # Place control point.
             self.canvas.coords(self._canvas_moving_cp,
@@ -108,25 +134,6 @@ dt=0.2
             self.canvas.itemconfigure(closest, fill="#F5D5DD", outline="#C9A5AE")
             self.canvas.dtag(closest, 'realcp')
             self.canvas.addtag_withtag(closest, 'fakecp')
-
-    def canvas_add_cp_cb(self, event):
-        """
-        Add control point callback. Only add control point there is no control
-        points nearby.
-        """
-
-        if self._canvas_moving_cp != -1:
-            # Moving a control point, don't allow user to add new points.
-            return
-        overlapping = self.canvas.find_overlapping(event.x-self.radius,
-                event.y-self.radius,
-                event.x+self.radius, event.y+self.radius)
-        cps = self.canvas.find_withtag('realcp')
-        overlapping_cps = set(overlapping).intersection(set(cps))
-
-        if not len(overlapping_cps):
-            # No overlapping control points.
-            self._create_cp(event.x, event.y)
 
     def clear_cb(self, event=None):
         self.clear_lines()
