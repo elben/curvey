@@ -34,7 +34,7 @@ dt=0.2
         # Data structures
 
         # control points drawn on canvas
-        self._canvas_moving_cp = False # cp being moved
+        self._canvas_moving_cp = -1 # cp being moved
 
         # Tk Widgets
 
@@ -85,28 +85,28 @@ dt=0.2
         self.canvas.delete(closest)
 
     def canvas_move_cp_cb(self, event):
-        if self._canvas_moving_cp:
+        if self._canvas_moving_cp != -1:
             # Place control point.
-            self._create_cp(event.x, event.y, tags=('cp', 'realcp'))
-            self._canvas_moving_cp = False
-            
-            # remove temporary
-            self.canvas.delete('fakecp')
+            self.canvas.coords(self._canvas_moving_cp,
+                    event.x-4, event.y-4,
+                    event.x+4, event.y+4)
+            self.canvas.itemconfigure(self._canvas_moving_cp, fill="#ff0000", outline="#000000")
+            self.canvas.dtag(self._canvas_moving_cp, 'fakecp')
+            self.canvas.addtag_withtag('realcp', self._canvas_moving_cp)
+            self._canvas_moving_cp = -1
         else:
             # Start moving control point.
             closest = self.canvas.find_closest(event.x, event.y)[0]
             tags = self.canvas.gettags(closest)
             if 'realcp' not in tags:
                 return
-            self._canvas_moving_cp = True
+            self._canvas_moving_cp = closest
             coords = self.canvas.coords(closest)
-            self.canvas.delete(closest)
 
-            # draw a temporary control point
-            x, y = find_center(*coords)
-            self._create_cp(x, y, tags=('cp','fakecp'), color="#F5D5DD",
-                    outline="#C9A5AE")
-
+            # show point as a 'temporary' point
+            self.canvas.itemconfigure(closest, fill="#F5D5DD", outline="#C9A5AE")
+            self.canvas.dtag(closest, 'realcp')
+            self.canvas.addtag_withtag(closest, 'fakecp')
 
     def canvas_add_cp_cb(self, event):
         """
@@ -114,7 +114,7 @@ dt=0.2
         points nearby.
         """
 
-        if self._canvas_moving_cp:
+        if self._canvas_moving_cp != -1:
             # Moving a control point, don't allow user to add new points.
             return
         halo = 4
