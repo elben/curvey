@@ -49,18 +49,21 @@ dt=0.2
         self.editbox.insert('0.0', UI.default_control_points)
         
         self.renderbutton = Button(self.frame, text="Render")
-        self.renderbutton.bind('<Button-1>', self.render_cb)
 
         self.drawing_labels = False
         self.draw_labels_checkbox = Checkbutton(self.frame, text="Control point labels")
         self.draw_labels_checkbox.bind('<Button-1>', self.draw_labels_cb)
 
         self.clearbutton = Button(self.frame, text="Clear")
-        self.clearbutton.bind('<Button-1>', self.clear_cb)
 
         self.canvas = Canvas(self.frame, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
         self.image = PhotoImage(file='axis.gif')
         self.canvas.create_image(self.canvas_w/2, self.canvas_h/2, image=self.image)
+
+        # Bindings.
+
+        self.renderbutton.bind('<Button-1>', self.render_cb)
+        self.clearbutton.bind('<Button-1>', self.clear_cb)
 
         self.canvas.bind('<Button-1>', self._canvas_lclick_cb)
         self.canvas.bind('<Double-Button-1>', self._canvas_2lclick_cb)
