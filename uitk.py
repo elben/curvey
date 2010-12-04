@@ -68,6 +68,7 @@ dt=0.2
         self.canvas.bind('<Button-1>', self._canvas_lclick_cb)
         self.canvas.bind('<Double-Button-1>', self._canvas_2lclick_cb)
         self.canvas.bind('<Button-2>', self._canvas_rclick_cb)
+        self.canvas.bind('<Motion>', self._canvas_motion_cb)
 
         # Grid placements.
 
@@ -79,6 +80,12 @@ dt=0.2
         self.draw_labels_checkbox.grid(row=0, column=0, columnspan=2)
         self.renderbutton.grid(row=1, column=0)
         self.clearbutton.grid(row=1, column=1)
+
+    def _canvas_motiion_cb(self, event):
+        """
+        Mouse moved on canvas.
+        """
+        
 
     def _canvas_2lclick_cb(self, event):
         """
@@ -99,7 +106,7 @@ dt=0.2
         Left click on mouse. Add a control point (if none are nearby)
         """
 
-        if self._canvas_moving_cp != -1:
+        if self._is_moving_control_point():
             # Place moving control point.
             self._move_cp(event)
         else:
@@ -164,6 +171,9 @@ dt=0.2
         tags = self.canvas.gettags(obj)
         return 'realcp' in tags
 
+    def _is_moving_control_point(self, obj):
+        return self._canvas_moving_cp != -1
+
     def _create_cp(self, x, y, tags=('cp','realcp'),
             color="#ff0000", outline="#000000"):
         oval = self.canvas.create_oval(x-self.radius, y-self.radius,
@@ -175,7 +185,7 @@ dt=0.2
             self.canvas.delete(obj)
 
     def _move_cp(self, event):
-        if self._canvas_moving_cp != -1:
+        if self._is_moving_control_point():
             # Place control point.
             self.canvas.coords(self._canvas_moving_cp,
                     event.x-self.radius, event.y-self.radius,
