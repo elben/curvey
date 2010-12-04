@@ -36,6 +36,7 @@ dt=0.2
 
         # control points drawn on canvas
         self._canvas_moving_cp = -1 # cp being moved
+        self._moving_cp_tracer = -1 # cp tracer id
 
         # Tk Widgets
 
@@ -81,11 +82,16 @@ dt=0.2
         self.renderbutton.grid(row=1, column=0)
         self.clearbutton.grid(row=1, column=1)
 
-    def _canvas_motiion_cb(self, event):
+    def _canvas_motion_cb(self, event):
         """
         Mouse moved on canvas.
         """
-        
+        if not self._is_moving_control_point(): 
+            return
+
+        # We're moving a control point, draw a tracer.
+        self.canvas.coords(self._moving_cp_tracer, event.x-self.radius, event.y-self.radius,
+                event.x+self.radius, event.y+self.radius)
 
     def _canvas_2lclick_cb(self, event):
         """
@@ -110,6 +116,7 @@ dt=0.2
             # Place moving control point.
             self._move_cp(event)
         else:
+            # Add a control point.
             overlapping = self.canvas.find_overlapping(event.x-self.radius,
                     event.y-self.radius,
                     event.x+self.radius, event.y+self.radius)
@@ -171,7 +178,7 @@ dt=0.2
         tags = self.canvas.gettags(obj)
         return 'realcp' in tags
 
-    def _is_moving_control_point(self, obj):
+    def _is_moving_control_point(self):
         return self._canvas_moving_cp != -1
 
     def _create_cp(self, x, y, tags=('cp','realcp'),
@@ -194,6 +201,10 @@ dt=0.2
             self.canvas.dtag(self._canvas_moving_cp, 'fakecp')
             self.canvas.addtag_withtag('realcp', self._canvas_moving_cp)
             self._canvas_moving_cp = -1
+
+            # Delete tracer.
+            self.canvas.delete(self._moving_cp_tracer)
+            self._moving_cp_tracer = -1
         else:
             # Start moving control point.
             closest = self.canvas.find_closest(event.x, event.y)[0]
@@ -202,10 +213,14 @@ dt=0.2
             self._canvas_moving_cp = closest
             coords = self.canvas.coords(closest)
 
-            # show point as a 'temporary' point
+            # Show point as a 'temporary' point
             self.canvas.itemconfigure(closest, fill="#F5D5DD", outline="#C9A5AE")
             self.canvas.dtag(closest, 'realcp')
             self.canvas.addtag_withtag(closest, 'fakecp')
+
+            # Create tracer.
+            self._moving_cp_tracer = self._create_cp(event.x, event.y,
+                    tags=('cp', 'fakecp'))
 
     def _cp_coords(self):
         """
