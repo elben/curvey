@@ -12,6 +12,7 @@ class BSpline(object):
         # So the curve is rendered based on the order of points.
         self.user_points = points if points else []
         self._internal_points = points if points else []
+        self._internal_points_dict = {}
         self.degree = degree
         self.dt = dt if dt else 0.2
 
@@ -129,9 +130,12 @@ class BSpline(object):
         self._internal_points = self.user_points[:]  # TODO copy ControlPoints?
         self._internal_knotvec = self.user_knotvec.copy()
         
+        self._internal_points_dict = {}
         # Tell the ControlPoints their polar coords.
+        # Build dict for faster control point lookup.
         for i, cp in enumerate(self._internal_points):
             cp.polar(KnotVector(self._internal_knotvec[i:i+self.degree]))
+            self._internal_points_dict[str(cp.polar())] = cp
 
         dt = dt if dt else self.dt
         t = self.user_knotvec.at(self.degree-1)
@@ -154,6 +158,7 @@ class BSpline(object):
             t += dt
         printar("Drawing Points", drawing_points)
         self._internal_points = drawing_points
+        self._internal_points_dict = {}
 
 
     def _insert_knot(self, knot):
@@ -192,6 +197,7 @@ class BSpline(object):
             # New control point. Interpolate between the control points next to
             # it.
 
+
             if DEBUG:
                 printar("Looking at left", merged_polars[i-1])
                 printar("Looking at middle", merged_polars[i])
@@ -210,6 +216,7 @@ class BSpline(object):
                 # match, then we won't have anything at t=0, for example.
                 pass
 
+            self._internal_points_dict[str(merged_polars[i])] = middle
             new_control_points.append(middle)
 
         self._internal_points = new_control_points
@@ -222,10 +229,13 @@ class BSpline(object):
         Given a KnotVector representing the polar coordinates of a ControlPoint,
         find the corresponding ControlPoint.
         """
-        for cp in self._internal_points:
-            if polar == cp.polar():
-                return cp
-        raise Exception("ControlPoint not found for %s." % (polar,))
+        try:
+            return self._internal_points_dict[str(polar)]
+        except:
+            for cp in self._internal_points:
+                if polar == cp.polar():
+                    return cp
+            raise Exception("ControlPoint not found for %s." % (polar,))
         
     def _count_knots(self, knot):
         """
