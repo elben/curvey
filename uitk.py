@@ -163,16 +163,15 @@ dt=0.2
             # Scale and translate points for drawing.
             drawing_control_points = world2canvas(control_points,
                     self.canvas_w, self.canvas_h, self.perpixel)
-            draw_points = world2canvas(points, self.canvas_w,
+            drawing_points = world2canvas(points, self.canvas_w,
                     self.canvas_h, self.perpixel)
 
             # Draw.
             if self.drawing_labels:
                 self._draw_labels(drawing_control_points, control_point_polars)
-            if not use_text_cps:
-                # Control points already drawn; no need for a second drawing.
-                drawing_control_points = None
-            self._draw(draw_points, drawing_control_points)
+            self._draw_lines(drawing_points)
+            if use_text_cps:
+                self._draw_control_points(drawing_control_points)
 
         else:
             error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
@@ -256,16 +255,15 @@ dt=0.2
             self.canvas.create_text(x, y+magic, text=label,
                     tags=('text', 'label'))
 
-    def _draw(self, draw_points, cps=None):
-        if cps:
-            for i, cp in enumerate(cps):
-                x, y = tuple(cp)
-                self._create_cp(x, y)
-            
-        # Draw line segments
-        for i in range(len(draw_points)-1):
-            x1, y1 = tuple(draw_points[i])
-            x2, y2 = tuple(draw_points[i+1])
+    def _draw_control_points(self, cps):
+        for i, cp in enumerate(cps):
+            x, y = tuple(cp)
+            self._create_cp(x, y)
+
+    def _draw_lines(self, drawing_points):
+        for i in range(len(drawing_points)-1):
+            x1, y1 = tuple(drawing_points[i])
+            x2, y2 = tuple(drawing_points[i+1])
             self.canvas.create_line(x1, y1, x2, y2, fill="blue", tags=('line',))
 
     def show(self):
