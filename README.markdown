@@ -14,7 +14,7 @@ Download:
 
 If you like living on the edge, you can download the latest git snapshot:
 
-    $ git clone git://github.com/eshira/curvey.git</div>
+    $ git clone git://github.com/eshira/curvey.git
 
 Curvey depends on Python an the Tkinter library, which is included in standard
 Python distributions. It has been tested on Python 2.6.
