@@ -50,7 +50,6 @@ dt=0.2
 
         self.drawing_labels = False
         self.draw_labels_checkbox = Checkbutton(self.frame, text="Control point labels")
-        self.draw_labels_checkbox.bind('<Button-1>', self._draw_labels_cb)
 
         self.clear_button = Button(self.frame, text="Clear")
 
@@ -61,6 +60,7 @@ dt=0.2
 
         # Bindings.
 
+        self.draw_labels_checkbox.bind('<Button-1>', self._draw_labels_cb)
         self.render_button.bind('<Button-1>', self._render_cb)
         self.clear_button.bind('<Button-1>', self._clear_cb)
 
