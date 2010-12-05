@@ -55,7 +55,7 @@ dt=0.2
         self.clear_button = Button(self.frame, text="Clear")
 
         self.canvas = Canvas(self.frame, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
-        self.axis_image = PhotoImage(file='axis.gif')
+        self.axis_image = PhotoImage(file='resources/axis.gif')
         self.canvas.create_image(self.canvas_w/2, self.canvas_h/2,
                 image=self.axis_image)
 
