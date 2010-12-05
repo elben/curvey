@@ -4,15 +4,15 @@ from libcurvey import *
 from util import *
 
 class UI:
-    def __init__(self, degree=3,
-            background_color="#cccccc", point_color="#ff0000",
-            line_color="#009900",
-            canvas_w=640, canvas_h=320):
+    _COLOR_BG = "#cccccc"
+    _COLOR_CP_FILL = "#ff0000"
+    _COLOR_CP_OUTLINE = "#000000"
+    _COLOR_CP_TEMP_FILL = "#f5d5dd"
+    _COLOR_CP_TEMP_OUTLINE = "#c9a5ae"
+
+    def __init__(self, degree=3, canvas_w=640, canvas_h=320):
         self._degree = degree
         self._dt = None
-        self._background_color = background_color
-        self._point_color = point_color
-        self._line_color = line_color
         self._canvas_w = canvas_w
         self._canvas_h = canvas_h
 
@@ -32,7 +32,7 @@ class UI:
 
         self._frame = Frame(self._master)
 
-        self._editbox_text = Text(self._frame, bg='#cccccc', borderwidth=4, width=20,
+        self._editbox_text = Text(self._frame, bg=UI._COLOR_BG, borderwidth=4, width=20,
                 height=30)
         self._editbox_text.insert('0.0', UI.default_control_points)
         
@@ -43,7 +43,8 @@ class UI:
 
         self._clear_button = Button(self._frame, text="Clear")
 
-        self._canvas = Canvas(self._frame, width=canvas_w, height=canvas_h, bd=4, background="#cccccc")
+        self._canvas = Canvas(self._frame, width=canvas_w, height=canvas_h,
+                bd=4, background=UI._COLOR_BG)
         self._axis_image = PhotoImage(file='resources/axis.gif')
         self._canvas.create_image(self._canvas_w/2, self._canvas_h/2,
                 image=self._axis_image)
@@ -176,8 +177,9 @@ class UI:
     def _is_moving_control_point(self):
         return self._moving_cp != -1
 
-    def _create_cp(self, x, y, tags=('cp','realcp'),
-            color="#ff0000", outline="#000000"):
+    def _create_cp(self, x, y, tags=('cp','realcp'), color=None, outline=None):
+        color = color if color else UI._COLOR_CP_FILL
+        outline = outline if outline else UI._COLOR_CP_OUTLINE
         oval = self._canvas.create_oval(x-self._radius, y-self._radius,
                 x+self._radius, y+self._radius, fill=color, outline=outline, tags=tags)
         return oval
@@ -192,7 +194,8 @@ class UI:
             self._canvas.coords(self._moving_cp,
                     event.x-self._radius, event.y-self._radius,
                     event.x+self._radius, event.y+self._radius)
-            self._canvas.itemconfigure(self._moving_cp, fill="#ff0000", outline="#000000")
+            self._canvas.itemconfigure(self._moving_cp, fill=UI._COLOR_CP_FILL,
+                    outline=UI._COLOR_CP_OUTLINE)
             self._canvas.dtag(self._moving_cp, 'fakecp')
             self._canvas.addtag_withtag('realcp', self._moving_cp)
             self._moving_cp = -1
@@ -209,7 +212,8 @@ class UI:
             coords = self._canvas.coords(closest)
 
             # Show point as a 'temporary' point
-            self._canvas.itemconfigure(closest, fill="#F5D5DD", outline="#C9A5AE")
+            self._canvas.itemconfigure(closest, fill=UI._COLOR_CP_TEMP_FILL,
+                    outline=UI._COLOR_CP_TEMP_OUTLINE)
             self._canvas.dtag(closest, 'realcp')
             self._canvas.addtag_withtag(closest, 'fakecp')
 
