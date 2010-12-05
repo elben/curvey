@@ -14,14 +14,12 @@ dt=0.2
 (0, 2)
 [0,0,0,1,3,4,4,4]"""
 
-    def __init__(self, control_points=None, degree=3,
+    def __init__(self, degree=3,
             background_color="#cccccc", point_color="#ff0000",
             line_color="#009900",
             canvas_w=640, canvas_h=320):
         self.degree = degree
         self.dt = None
-        self.control_points = control_points
-        self.control_point_polars = []
         self.background_color = background_color
         self.point_color = point_color
         self.line_color = line_color
@@ -139,14 +137,16 @@ dt=0.2
         # Grab data.
         s = self.editbox_text.get("0.0", "end")
         lines = s.split('\n')
-        control_points, knotvec, self.degree, self.dt = parse_data(lines)
+        text_control_points, knotvec, self.degree, self.dt = parse_data(lines)
 
-        use_text_cps = True
         if len(self.canvas.find_withtag('realcp')):
             control_points = self._cp_coords()
             use_text_cps = False
+        else:
+            control_points = text_control_points
+            use_text_cps = True
 
-        # Build BSpline.
+        # Build BSpline (all in world coordinates).
         bspline = BSpline(degree=self.degree,dt=self.dt)
         for cp in control_points:
             p = ControlPoint(Point(cp[0], cp[1]))
@@ -158,18 +158,22 @@ dt=0.2
             self._clear_labels()
 
             # Run de Boor to find spline.
-            bspline.render()
+            control_points, control_point_polars, points = bspline.render()
 
             # Scale and translate points for drawing.
-            control_points, self.control_point_polars, points = bspline.render()
-
-            self.control_points = world2canvas(control_points,
+            drawing_control_points = world2canvas(control_points,
                     self.canvas_w, self.canvas_h, self.perpixel)
             draw_points = world2canvas(points, self.canvas_w,
                     self.canvas_h, self.perpixel)
 
             # Draw.
-            self._draw(draw_points, use_text_cps)
+            if self.drawing_labels:
+                self._draw_labels(drawing_control_points, control_point_polars)
+            if not use_text_cps:
+                # Control points already drawn; no need for a second drawing.
+                drawing_control_points = None
+            self._draw(draw_points, drawing_control_points)
+
         else:
             error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
             self.canvas.create_text(self.canvas_w/2, self.canvas_h/2-100,
@@ -241,20 +245,20 @@ dt=0.2
     def _clear_labels(self):
         self.canvas.delete('text')
 
-    def _draw_labels(self):
+    def _draw_labels(self, cps, polars):
         magic = -10
 
-        for i, cp in enumerate(self.control_points):
+        for i, cp in enumerate(cps):
             x, y = tuple(cp)
             
-            polar = str(self.control_point_polars[i])
+            polar = str(polars[i])
             label = "%d %s" % (i, polar)
             self.canvas.create_text(x, y+magic, text=label,
                     tags=('text', 'label'))
 
-    def _draw(self, draw_points, draw_cps=False):
-        if draw_cps:
-            for i, cp in enumerate(self.control_points):
+    def _draw(self, draw_points, cps=None):
+        if cps:
+            for i, cp in enumerate(cps):
                 x, y = tuple(cp)
                 self._create_cp(x, y)
             
@@ -263,9 +267,6 @@ dt=0.2
             x1, y1 = tuple(draw_points[i])
             x2, y2 = tuple(draw_points[i+1])
             self.canvas.create_line(x1, y1, x2, y2, fill="blue", tags=('line',))
-
-        if self.drawing_labels:
-            self._draw_labels()
 
     def show(self):
         mainloop()
