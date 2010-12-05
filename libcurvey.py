@@ -102,11 +102,12 @@ class BSpline(object):
 
     def is_valid(self):
         """
-        Returns true if the spline has enough control points and knot vectors
-        for the given degree.
+        Returns true if (1) the spline has enough control points and knot vectors
+        for the given degree and (2) the knot vector is valid.
         """
-        return (len(self.user_points) > self.degree and
-                len(self.user_knotvec) == len(self.user_points)+self.degree-1)
+        return (len(self.user_points) > self.degree
+                and len(self.user_knotvec) == len(self.user_points)+self.degree-1
+                and self.user_knotvec.is_valid())
 
     def _de_boor(self, dt=None):
         """

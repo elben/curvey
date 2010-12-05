@@ -10,7 +10,9 @@ class UI:
     _COLOR_CP_TEMP_FILL = "#f5d5dd"
     _COLOR_CP_TEMP_OUTLINE = "#c9a5ae"
 
-    _ERROR_MSG = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
+    _ERROR_MSG = """Invalid curve specified.\nMake sure you have:
+    1. The right number of points for the degree and knot vector specified.
+    2. A knot vector containing non-decreasing integers"""
 
     def __init__(self, degree=3, canvas_w=640, canvas_h=320):
         self._degree = degree
