@@ -10,6 +10,8 @@ class UI:
     _COLOR_CP_TEMP_FILL = "#f5d5dd"
     _COLOR_CP_TEMP_OUTLINE = "#c9a5ae"
 
+    _ERROR_MSG = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
+
     def __init__(self, degree=3, canvas_w=640, canvas_h=320):
         self._degree = degree
         self._dt = None
@@ -166,9 +168,9 @@ class UI:
                 self._draw_control_points(drawing_control_points)
 
         else:
-            error_msg = "Invalid curve specified.\nMake sure you have the right number of points for the degree and knot vector specified."
-            self._canvas.create_text(self._canvas_w/2, self._canvas_h/2-100,
-                    text=error_msg, tags=('text','error'))
+            if not len(self._canvas.find_withtag('error')):
+                self._canvas.create_text(self._canvas_w/2, self._canvas_h/2-100,
+                        text=UI._ERROR_MSG, tags=('text','error'))
 
     def _is_control_point(self, obj):
         tags = self._canvas.gettags(obj)
