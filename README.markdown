@@ -29,3 +29,8 @@ To run the GUI version of Curvey:
 You can also give Curvey an input file:
 
     $ python curvey.py file
+
+Tutorial
+=====================
+
+You can read the <a href="http://elbenshira.com/curvey/">Curvey tutorial</a>.
