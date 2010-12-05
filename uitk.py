@@ -4,16 +4,6 @@ from libcurvey import *
 from util import *
 
 class UI:
-    default_control_points = """degree=3
-dt=0.2
-(1, 3)
-(2, 4)
-(6, 3)
-(5, 1)
-(2, 1)
-(0, 2)
-[0,0,0,1,3,4,4,4]"""
-
     def __init__(self, degree=3,
             background_color="#cccccc", point_color="#ff0000",
             line_color="#009900",
@@ -268,6 +258,17 @@ dt=0.2
 
     def show(self):
         mainloop()
+
+    default_control_points = """degree=3
+dt=0.2
+(1, 3)
+(2, 4)
+(6, 3)
+(5, 1)
+(2, 1)
+(0, 2)
+[0,0,0,1,3,4,4,4]"""
+
 
 
 def main(argv):
