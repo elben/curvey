@@ -24,7 +24,7 @@ Using
 
 To run the GUI version of Curvey:
 
-        $ python curvey.py --ui</div>
+        $ python curvey.py --ui
 
 You can also give Curvey an input file:
 
