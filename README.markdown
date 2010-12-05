@@ -10,11 +10,11 @@ Setting Up
 
 Download:
 
-        https://github.com/eshira/curvey/archives/master
+    https://github.com/eshira/curvey/archives/master
 
 If you like living on the edge, you can download the latest git snapshot:
 
-        $ git clone git://github.com/eshira/curvey.git</div>
+    $ git clone git://github.com/eshira/curvey.git</div>
 
 Curvey depends on Python an the Tkinter library, which is included in standard
 Python distributions. It has been tested on Python 2.6.
@@ -24,8 +24,8 @@ Using
 
 To run the GUI version of Curvey:
 
-        $ python curvey.py --ui
+    $ python curvey.py --ui
 
 You can also give Curvey an input file:
 
-        $ python curvey.py file
+    $ python curvey.py file
