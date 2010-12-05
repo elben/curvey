@@ -14,6 +14,10 @@ h1 {
   font-size: 48px;
 }
 
+img.full {
+  width: 640px;
+}
+
 .section h2 {
   color: #fff;
   background: #333;
@@ -38,7 +42,7 @@ h1 {
 #subtitle {
 }
 
-div.code {
+pre.code, div.code {
   font-family: 'Bitstream Vera Sans Mono', Courier, monospace;
   color: #666;
   background: #ddd;
@@ -47,6 +51,17 @@ div.code {
 
 span.code {
   font-family: 'Bitstream Vera Sans Mono', Courier, monospace;
+}
+
+span.error {
+  background-color: #cccccc;
+}
+
+span.important {
+  background-color: yellow;
+  font-weight: bold;
+  padding: 1px 4px;
+  border: 1px solid black;
 }
 
 .formula {
