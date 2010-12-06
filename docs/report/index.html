@@ -42,7 +42,7 @@
         <h3>Polar Notation</h3>
 
         <p>This section introduces b-spline curves using the polar notation.
-        We assume that you have a basic understanding of b-spline cruves.</p>
+        We assume that you have a basic understanding of b-spline curves.</p>
 
         <p>A b-spline curve can be defined by a set of control points and a knot
         vector. Consider the example below:</p>
@@ -59,15 +59,23 @@
         </p>
 
         <p>More formally, consider a degree <i>n</i> b-spline over the paramater
-        interval [a,b]. We can give polar values to each control point using n
-        consecutive knots from the knot vector</p>
+        interval <i>[a,b]</i>. We can give polar values to each control point using
+        <i>n</i> consecutive knots from the knot vector</p>
         <p class="formula"><img src="resources/knotvector.png"></p>
         <p>Polar values are symmetric:</p>
         <p class="formula"><img src="resources/symmetric.png"></p>
         <p>And finally, we can calculate the (x,y) position of any polar value
-        <i>c</i> that is between a and b:</p>
+        <i>c</i> that is between <i>a</i> and <i>b</i>:</p>
         <p class="formula"><img src="resources/affine_combination.png"></p>
         <p>More in-depth discussion can be found in [1].</p>
+
+        <h3>Knot Insertion &amp; de Boor</h3>
+
+        <p>We can evalute the (x,y) values of a knot <i>t</i> between the
+        paramater space <i>[a,b]</i> by inserting <i>t</i> into the knot vector
+        such that there are <i>n</i> instances of <i>t</i> in the knot vector.</p>
+
+        <p></p>
 
       </div>
 
@@ -76,7 +84,8 @@
         <h2>Curvey</h2>
 
         <p>Curvey uses the de Boor algorithm to evaluate the b-spline curves. It
-        uses a simple "walk" by inserting p(u,u,u) every delta as defined by the
+        uses a simple "walk" by inserting <span class="code">p(u,u,u)</span>
+        every <i>delta</i> as defined by the
         user.</p>
 
         <h3>Setting Up</h3>
