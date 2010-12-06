@@ -269,7 +269,7 @@ class UI:
         mainloop()
 
     default_control_points = """degree=3
-dt=0.2
+dt=0.05
 (1, 3)
 (2, 4)
 (6, 3)
