@@ -2,6 +2,7 @@
 
 import sys
 import math
+import time
 from util import *
 
 DEBUG = False
@@ -129,10 +130,10 @@ class BSpline(object):
 
         self._internal_points = self.user_points[:]  # TODO copy ControlPoints?
         self._internal_knotvec = self.user_knotvec.copy()
-        
-        self._internal_points_dict = {}
+
         # Tell the ControlPoints their polar coords.
         # Build dict for faster control point lookup.
+        self._internal_points_dict = {}
         for i, cp in enumerate(self._internal_points):
             cp.polar(KnotVector(self._internal_knotvec[i:i+self.degree]))
             self._internal_points_dict[str(cp.polar())] = cp
@@ -155,6 +156,8 @@ class BSpline(object):
                 if DEBUG:
                     printar("internal knots now", self._internal_knotvec)
             drawing_points.append(self._polar_to_control_point(KnotVector([t]*self.degree)))
+            self._internal_points = self.user_points[:]
+            self._internal_knotvec = self.user_knotvec.copy()
             t += dt
         printar("Drawing Points", drawing_points)
         self._internal_points = drawing_points
