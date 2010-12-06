@@ -121,7 +121,7 @@ class UI:
             if not len(overlapping_cps):
                 # No overlapping control points.
                 self._create_cp(event.x, event.y)
-            self._render_cb(show_error=False)
+                self._render_cb(show_error=False)
 
     def _clear_cb(self, event=None):
         self._clear_lines()
