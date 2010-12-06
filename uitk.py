@@ -94,6 +94,7 @@ class UI:
 
         closest = self._canvas.find_closest(event.x, event.y)[0]
         self._delete_cp(closest)
+        self._render_cb(show_error=False)
 
     def _canvas_rclick_cb(self, event):
         """
@@ -120,6 +121,7 @@ class UI:
             if not len(overlapping_cps):
                 # No overlapping control points.
                 self._create_cp(event.x, event.y)
+            self._render_cb(show_error=False)
 
     def _clear_cb(self, event=None):
         self._clear_lines()
@@ -129,7 +131,7 @@ class UI:
     def _draw_labels_cb(self, event=None):
         self._drawing_labels = not self._drawing_labels
 
-    def _render_cb(self, event=None):
+    def _render_cb(self, event=None, show_error=True):
         # Grab data.
         s = self._editbox_text.get("0.0", "end")
         lines = s.split('\n')
@@ -170,7 +172,7 @@ class UI:
                 self._draw_control_points(drawing_control_points)
 
         else:
-            if not len(self._canvas.find_withtag('error')):
+            if show_error and not len(self._canvas.find_withtag('error')):
                 self._canvas.create_text(self._canvas_w/2, self._canvas_h/2-100,
                         text=UI._ERROR_MSG, tags=('text','error'))
 
@@ -207,6 +209,8 @@ class UI:
             # Delete tracer.
             self._canvas.delete(self._moving_cp_tracer)
             self._moving_cp_tracer = -1
+
+            self._render_cb(show_error=False)
         else:
             # Start moving control point.
             closest = self._canvas.find_closest(event.x, event.y)[0]
