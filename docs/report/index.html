@@ -75,7 +75,21 @@
         paramater space <i>[a,b]</i> by inserting <i>t</i> into the knot vector
         such that there are <i>n</i> instances of <i>t</i> in the knot vector.</p>
 
-        <p></p>
+        <p>In the example below, we evaluate <i>t = 0.6</i>. We start with the
+        knot vector <span class="code">[0,0,0,1,1,1]</span>. We then insert
+        <i>0.6</i> into the knot vector to produce <span
+        class="code">[0,0,0,0.6,1,1,1]</span>. We then calculate new control
+        points <span class="code">p(0,0,0.6)</span>, <span
+        class="code">p(0,0.6,1)</span>, and <span
+        class="code">p(0.6,1,1)</span>. We throw away <span
+        class="code">p(0,0,1)</span> and <span class="code">p(0,1,1)</span>. We
+        evaluate the control point positions using the interpolation equation discussed
+        above.</p>
+
+        <p>Inserting <i>0.6</i> twice more will give us the knot vector <span
+        class="code">[0,0,0,0.6,0.6,0.6,1,1,1]</span>. The final control
+        points are colored red in the figure below.</p>
+        <img src="resources/de_boor_final.png">
 
       </div>
 
