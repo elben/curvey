@@ -1,5 +1,3 @@
-<a href="http://elbenshira.com/projects/curvey/">Read the Curvey tutorial!</a> 
-
 Gaining an intuitive understanding for b-splines is difficult without directly
 seeing the effects of different knot vectors and control point positions.
 
@@ -35,4 +33,4 @@ You can also give Curvey an input file:
 Tutorial
 =====================
 
-You can read the <a href="http://elbenshira.com/projects/curvey">Curvey tutorial</a>.
+You can read the <a href="http://elbenshira.com/p/curvey">Curvey tutorial</a>.
